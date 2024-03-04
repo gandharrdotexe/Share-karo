@@ -8,6 +8,10 @@ app.get('/',(req,res)=>{
     res.render('index');
 });
 
+app.get('/index',(req,res)=>{
+    res.render('index');
+});
+
 app.get('/get-started',(req, res)=>{
     res.render('get-started');
 });
