@@ -16,4 +16,8 @@ app.get('/get-started',(req, res)=>{
     res.render('get-started');
 });
 
+app.get('/text-share',(req,res)=>{
+    res.render('text-share');
+});
+
 app.listen(3000, () => console.log("Running on port 3000"));

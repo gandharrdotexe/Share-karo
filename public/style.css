@@ -6,9 +6,15 @@ body{
     background-color: #1E1E1E;
     font-family: 'Cairo Play', sans-serif;
     color: beige;
-    font-size: 16px;
-}
+    font-size: 16px;}
 
+
+    ::-webkit-scrollbar-thumb {
+      background: #2B2B2B; /* color of the scrollbar handle */
+    }   
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2B2B2B; /* color of the scrollbar handle when hovered */
+    } 
 @media (max-width: 991px) {
     .sidebar{
         background-color: #2B2B2B;
@@ -212,4 +218,175 @@ body{
   body {
       font-size: 18px;
   }
+}
+
+.notepad{
+  resize: none;
+  height: 88vh;
+  width: 100%;
+  background-color: #1E1E1E;
+  color: beige;
+  font-family: 'Cairo Play', sans-serif;
+  border: #1E1E1E;
+}
+
+/* .notepad:not(:focus){
+  border: none;
+} */
+.notepad:active{
+  border: none;
+}
+
+
+.bookmarkBtn {
+  width: 7em;
+  height: 2.5em;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.349);
+  background-color: rgb(12, 12, 12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+.IconContainer {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(to bottom, rgb(255, 136, 255), rgb(172, 70, 255));
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 2;
+  transition-duration: 0.3s;
+}
+
+.icon {
+  border-radius: 1px;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.text {
+  height: 100%;
+  width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: beige;
+  z-index: 1;
+  transition-duration: 0.3s;
+  font-size: 1.04em;
+  padding-top: 0.8em;
+}
+
+.bookmarkBtn:hover .IconContainer {
+  width: 90px;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtn:hover .text {
+  transform: translate(10px);
+  width: 0;
+  font-size: 0;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtn:active {
+  transform: scale(0.95);
+  transition-duration: 0.3s;
+}
+
+
+.bookmarkBtn2{
+  width: 7em;
+  height: 2.5em;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.349);
+  background-color: rgb(12, 12, 12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+.IconContainer2 {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(to bottom, rgb(255, 136, 255), rgb(172, 70, 255));
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 2;
+  transition-duration: 0.3s;
+}
+
+.icon {
+  border-radius: 1px;
+}
+
+.text {
+  height: 100%;
+  width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 1;
+  transition-duration: 0.3s;
+  font-size: 1.04em;
+  padding-top: 0.8em;
+}
+
+.bookmarkBtn2:hover .IconContainer2 {
+  width: 90px;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtn2:hover .text {
+  transform: translate(10px);
+  width: 0;
+  font-size: 0;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtn2:active {
+  transform: scale(0.95);
+  transition-duration: 0.3s;
+}
+
+.svg-icon2 {
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.svg-icon2 path,
+.svg-icon2 polygon,
+.svg-icon2 rect {
+  fill: black;
+  stroke-width: 2;
+}
+
+.svg-icon2 circle {
+  stroke: black;
+  stroke-width: 2;
+}
+
+.save-lock-btn {
+  display: flex;
+  gap: 10px; /* Adjust the space between buttons */
+  transform: translateY(-50px);
+  justify-content: flex-end; /* Align items to the start (left) */
+  align-items: flex-end;
+  padding-right: 1.2em;
+ 
+  
 }
