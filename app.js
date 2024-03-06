@@ -22,7 +22,7 @@ app.get("/get-started", (req, res) => {
 
 app.get("/text/homePage", (req,res)=>{
   res.redirect("/homepage");
-  res.render("index");
+  // res.render("index");
 });
 
 app.get("/text/:textId?", (req, res) => {
