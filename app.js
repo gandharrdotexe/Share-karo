@@ -5,10 +5,11 @@ const app = express();
 
 const encyptKey = "Mithrajeeth18";
 app.set("view engine", "ejs");
-
+var textId = "";
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
-app.get("/homePage", (req, res) => {
+app.get("/", (req, res) => {
   res.render("index");
 });
 
@@ -20,26 +21,26 @@ app.get("/get-started", (req, res) => {
   res.render("get-started");
 });
 
-app.get("/text/homePage", (req,res)=>{
-  res.redirect("/homepage");
-  // res.render("index");
+app.get("/Text/homePage" || "/homePage", (req, res) => {
+  res.redirect("/");
 });
 
-app.get("/text/:textId?", (req, res) => {
-  var textId = req.params.textId;
+
+app.post("/Text/save", (req, res) => {
+  var encryptData = encrypt(req.body.content, encyptKey);
+  
+
+
+
+});
+
+app.get("/Text/:textId?", (req, res) => {
+  textId = req.params.textId;
   if (!textId) {
     var randomkey = generateRandomKey(5);
-    return res.redirect("/text/" + randomkey);
+    return res.redirect("/Text/" + randomkey);
   }
   res.render("text-share");
 });
 
-app.post("/save", (req, res) => {
-  console.log(req.body.content);
-});
-
-
-
 app.listen(3000, () => console.log("Running on port 3000"));
-
-
