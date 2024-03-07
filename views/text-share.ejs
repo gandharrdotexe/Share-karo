@@ -4,13 +4,13 @@
 <body>
     <%- include('./partials/navbar.ejs') %>
 
-    <form action="">
+    <form action="/save" method="post">
     <div class="container">
         <div class="row">
-            <textarea placeholder="Enter your text here..." class="notepad mt-2"></textarea>
+            <textarea id="content" name="comtent" placeholder="Enter your text here..." class="notepad mt-2"></textarea>
             <!-- save button -->
             <div class="save-lock-btn">
-                <button class="bookmarkBtn">
+                <button type="submit" class="bookmarkBtn">
                     <span class="IconContainer">
                       <svg viewBox="0 0 384 512" height="0.9em" class="icon">
                         <path

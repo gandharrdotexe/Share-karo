@@ -29,5 +29,8 @@ app.get("/Text/:textId?", (req, res) => {
   res.render("text-share");
 });
 
+app.post("/save", (req, res) => {
+  console.log(req.body.content);
+});
 
 app.listen(3000, () => console.log("Running on port 3000"));
