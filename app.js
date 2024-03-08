@@ -25,6 +25,17 @@ client
   })
   .catch((err) => console.error(err));
 
+  app.use(
+    helmet.contentSecurityPolicy({
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
+        // Add other directives as needed
+      },
+    })
+  );
+  
+
 app.get("/", (req, res) => {
   res.render("index");
 });
