@@ -91,6 +91,18 @@ app.post("/Text/save", async (req, res) => {
   return res.redirect("/Text/" + textId);
 });
 
+app.post("/Text/lock", async (req, res) => {
+  const encryptPassKey = encrypt(req.body.passkey, encyptKey);
+  await client
+    .db("Share-Note")
+    .collection("Lock")
+    .updateOne(
+      { _id: textId },
+      { $set: { Pass: encryptPassKey } },
+      { upsert: true }
+    );
+});
+
 app.get("/Text/:textId?", async (req, res) => {
   textId = req.params.textId;
 
