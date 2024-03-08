@@ -1,13 +1,29 @@
 const express = require("express");
 const { generateRandomKey, encrypt, decrypt } = require("./functions");
-
+const { MongoClient, GridFSBucket } = require("mongodb");
 const app = express();
-
+const helmet = require("helmet");
 const encyptKey = "Mithrajeeth18";
 app.set("view engine", "ejs");
 var textId = "";
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
+app.use(helmet());
+
+const uri =
+  "mongodb+srv://Mithra707:*Mithrajeeth*@cluster0.2gpt44h.mongodb.net";
+const client = new MongoClient(uri);
+
+client
+  .connect()
+  .then(() => {
+    console.log("Connected to Database");
+    gfs = new GridFSBucket(client.db("Share-Note"), {
+      bucketName: "uploads",
+    });
+    console.log("GridFSBucket initialized");
+  })
+  .catch((err) => console.error(err));
 
 app.get("/", (req, res) => {
   res.render("index");
@@ -25,13 +41,9 @@ app.get("/Text/homePage" || "/homePage", (req, res) => {
   res.redirect("/");
 });
 
-
-app.post("/Text/save", (req, res) => {
+app.post("/Text/save", async (req, res) => {
   var encryptData = encrypt(req.body.content, encyptKey);
-  
-
-
-
+  console.log(req.body.content);
 });
 
 app.get("/Text/:textId?", (req, res) => {
