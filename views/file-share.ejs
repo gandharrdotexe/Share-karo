@@ -1,71 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-    <%- include('./partials/head.ejs') %>
-<body>
-    <%- include('./partials/navbar.ejs') %>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12" style="display: flex; justify-content: center; align-items: center; margin-top: 12%;">
-                <div class="drag-area mt-5">
-                    <div class="icon d-flex justify-content-center align-items-center"><i class="fas fa-cloud-upload-alt"></i></div>
-                    <header>Drag & Drop to Upload File</header>
-                    <span>OR</span>
-                    <button>Browse File</button>
-                    <input type="file" hidden>
-                </div>
-            </div>
-            
+<%- include('./partials/head.ejs') %>
 
-        </div>
-            
-            <script>
-                const dropArea = document.querySelector(".drag-area"),
-                    dragText = dropArea.querySelector("header"),
-                    button = dropArea.querySelector("button"),
-                    input = dropArea.querySelector("input");
-                let file;
-        
-                button.onclick = () =>
-                {
-                    input.click();
-                }
-        
-                input.addEventListener("change", function ()
-                {
-                    file = this.files[0];
-                    dropArea.classList.add("active");
-                    showFile();
-                });
-        
-                dropArea.addEventListener("dragover", (event) =>
-                {
-                    event.preventDefault();
-                    dropArea.classList.add("active");
-                    dragText.textContent = "Release to Upload File";
-                });
-        
-                dropArea.addEventListener("dragleave", () =>
-                {
-                    dropArea.classList.remove("active");
-                    dragText.textContent = "Drag & Drop to Upload File";
-                });
-        
-                dropArea.addEventListener("drop", (event) =>
-                {
-                    event.preventDefault();
-                    file = event.dataTransfer.files[0];
-                    console.log(file);
-                    showFile();
-                });
-        
-                function showFile()
-                {
-                    let fileName = file.name;
-                    let fileSize = file.size;
-                    dragText.textContent = fileName + " (" + (fileSize / (1024 * 1024)).toFixed(2) + " MB)";
-                }
-            </script>
-        
-    </div>
-</body>
+    <body>
+        <%- include('./partials/navbar.ejs') %>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 col-sm-12"
+                        style="display: flex; justify-content: center; align-items: center; margin-top: 12%;">
+                        <div class="drag-area mt-5">
+                            <div class="icon d-flex justify-content-center align-items-center"><i
+                                    class="fas fa-cloud-upload-alt"></i></div>
+                            <header>Drag & Drop to Upload File</header>
+                            <span>OR</span>
+                            <button>Browse File</button>
+                            <input type="file" hidden>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    const dropArea = document.querySelector(".drag-area"),
+                        dragText = dropArea.querySelector("header"),
+                        button = dropArea.querySelector("button"),
+                        input = dropArea.querySelector("input");
+                    let file;
+
+                    button.onclick = () =>
+                    {
+                        input.click();
+                    }
+
+                    input.addEventListener("change", function ()
+                    {
+                        file = this.files[0];
+                        dropArea.classList.add("active");
+                        showFile();
+                    });
+
+                    dropArea.addEventListener("dragover", (event) =>
+                    {
+                        event.preventDefault();
+                        dropArea.classList.add("active");
+                        dragText.textContent = "Release to Upload File";
+                    });
+
+                    dropArea.addEventListener("dragleave", () =>
+                    {
+                        dropArea.classList.remove("active");
+                        dragText.textContent = "Drag & Drop to Upload File";
+                    });
+
+                    dropArea.addEventListener("drop", (event) =>
+                    {
+                        event.preventDefault();
+                        file = event.dataTransfer.files[0];
+                        console.log(file);
+                        showFile();
+                    });
+
+                    function showFile()
+                    {
+                        let fileName = file.name;
+                        let fileSize = file.size;
+                        let sizeInKb = fileSize / 1024;
+                        let sizeInMb = sizeInKb / 1024;
+                        let sizeToShow = sizeInMb > 1 ? sizeInMb.toFixed(2) + " MB" : sizeInKb.toFixed(2) + " KB";
+                        dragText.textContent = fileName + " (" + sizeToShow + ")";
+                    }
+                </script>
+            </div>
+    </body>
+
 </html>
