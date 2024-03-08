@@ -30,6 +30,7 @@ client
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://unpkg.com"],
+        connectSrc: ["'self'", "https://lottie.host"]
         // Add other directives as needed
       },
     })
