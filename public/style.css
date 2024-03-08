@@ -435,3 +435,50 @@ body{
   border-radius: 50%;
   background-color: #1E1E1E;
 }
+
+.drag-area {
+  border: 2px dashed #fff;
+  height: 100%;
+  width: 700px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #2B2B2B;
+  
+}
+
+.drag-area.active {
+  border: 2px solid #fff;
+}
+
+.drag-area .icon {
+  color: beige;
+}
+
+.drag-area header {
+  font-size: 2em;
+  font-weight: 500;
+  color: beige;
+  text-align: center;
+}
+
+.drag-area span {
+  font-size: 2.3em;
+  font-weight: 500;
+  color: #8ca786 ;
+  margin: 10px 0 15px 0;
+}
+
+.drag-area button {
+  padding: 10px 25px;
+  font-size: 20px;
+  font-weight: 500;
+  border: none;
+  outline: none;
+  background: beige;
+  color: #3f563c;
+  border-radius: 5px;
+  cursor: pointer;
+}

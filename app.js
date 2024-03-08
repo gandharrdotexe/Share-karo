@@ -41,15 +41,16 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-app.get("/index", (req, res) => {
-  res.render("index");
+app.get("/homePage", (req, res) => {
+  //res.render("index");
+  res.redirect("/");
 });
 
 app.get("/get-started", (req, res) => {
   res.render("get-started");
 });
 
-app.get("/Text/homePage" || "/homePage", (req, res) => {
+app.get("/Text/homePage" || "/homePage" , (req, res) => {
   res.redirect("/");
 });
 
@@ -65,6 +66,15 @@ app.get("/Text/:textId?", (req, res) => {
     return res.redirect("/Text/" + randomkey);
   }
   res.render("text-share");
+});
+
+app.get("/File/:fileId?", (req, res) => {
+  fileId = req.params.fileId;
+  if (!fileId) {
+    var randomkey = generateRandomKey(5);
+    return res.redirect("/File/" + randomkey);
+  }
+  res.render("file-share");
 });
 
 app.listen(3000, () => console.log("Running on port 3000"));
