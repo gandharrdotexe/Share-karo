@@ -31,17 +31,19 @@
                     <p class="text">Lock</p>
                   </button>
             </div>
-            <form action="Text/lock" method="post">
+            <form action="/Text/lock" method="post">
             <div id="popup" class="popup">
               <h1 style="text-decoration: bold;">Do you want to Lock this page content ??</h1>
               <p>Locking this page disable other public users to see the content written</p>
               <input type="text" name="passkey" id="passkey" placeholder="Enter a passkey to Lock" style="margin-top: 10px; padding: 10px; width: 95%; background-color: #1E1E1E; border-radius: 12px; color: #709f44;">
+              
               <div class="lock-cancel-btn">
                 <button type="button" id="hidePopup">Cancel</button>
-                <button type="submit">Lock</button>
+                <button type="submit" id="lock">Lock</button>
               </div>
-            </form>
+            
             </div>
+            </form>
             <!-- Overlay div -->
             <div id="overlay" class="overlay"></div>
 
@@ -59,7 +61,7 @@
         document.getElementById('popup').style.display = 'none';
         document.getElementById('overlay').style.display = 'none';
       });
-
+      
 
       // function showPopup(event) {
       //   // Prevent default behavior of the button

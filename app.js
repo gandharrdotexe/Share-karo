@@ -92,7 +92,12 @@ app.post("/Text/save", async (req, res) => {
 });
 
 app.post("/Text/lock", async (req, res) => {
+  /*if (!req.body.passkey) {
+    data["error"] = "Empty Passkey!!";
+    return res.render("/Text/" + textId, data);
+  }
   const encryptPassKey = encrypt(req.body.passkey, encyptKey);
+
   await client
     .db("Share-Note")
     .collection("Lock")
@@ -100,7 +105,8 @@ app.post("/Text/lock", async (req, res) => {
       { _id: textId },
       { $set: { Pass: encryptPassKey } },
       { upsert: true }
-    );
+    );*/
+  console.log("heiii");
 });
 
 app.get("/Text/:textId?", async (req, res) => {
