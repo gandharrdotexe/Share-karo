@@ -1,6 +1,6 @@
 const express = require("express");
 const { generateRandomKey, encrypt, decrypt } = require("./functions");
-const { MongoClient, GridFSBucket } = require("mongodb");
+const { MongoClient, GridFSBucket, ReturnDocument } = require("mongodb");
 
 const app = express();
 const helmet = require("helmet");
@@ -44,6 +44,8 @@ const encyptKey = "Mithrajeeth18";
 var textId = "";
 const data = {
   content: "",
+  showPopup: false,
+  lockButton: true,
   error: "",
   Filestatus: "",
   Filekey: "",
@@ -92,21 +94,22 @@ app.post("/Text/save", async (req, res) => {
 });
 
 app.post("/Text/lock", async (req, res) => {
-  /*if (!req.body.passkey) {
-    data["error"] = "Empty Passkey!!";
-    return res.render("/Text/" + textId, data);
-  }
-  const encryptPassKey = encrypt(req.body.passkey, encyptKey);
-
+  var encryptPaskey = encrypt(req.body.passkey, encyptKey);
+  //console.log(encryptPaskey);
   await client
     .db("Share-Note")
     .collection("Lock")
     .updateOne(
       { _id: textId },
-      { $set: { Pass: encryptPassKey } },
+      { $set: { Pass: encryptPaskey } },
       { upsert: true }
-    );*/
-  console.log("heiii");
+    );
+
+  req.session.PageUnlocked = textId;
+  req.session.cookie.expires = new Date(Date.now() + 2 * 60 * 1000);
+  req.session.cookie.maxAge = 2 * 60 * 1000;
+
+  return res.redirect("/Text/" + textId);
 });
 
 app.get("/Text/:textId?", async (req, res) => {
@@ -131,10 +134,40 @@ app.get("/Text/:textId?", async (req, res) => {
       ? decrypt(containsData.content, encyptKey)
       : "";
 
+    if (isLocked) {
+      data["lockButton"] = false;
+      if (!req.session.PageUnlocked || textId !== req.session.PageUnlocked) {
+        return res.render("unLock", data);
+      }
+    } else {
+      data["lockButton"] = true;
+    }
+
     return res.render("text-share", data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/Text/unlock", async (req, res) => {
+  const pass = req.body.passkey;
+  const DBdata = await client
+    .db("Share-Note")
+    .collection("Lock")
+    .findOne({ _id: textId });
+  // console.log(DBdata);
+  //passkey = "556de47abc663f343b01f76a06c46c05";
+  if (pass === decrypt(DBdata.Pass, encyptKey)) {
+    req.session.PageUnlocked = textId;
+    req.session.cookie.expires = new Date(Date.now() + 2 * 60 * 1000);
+    req.session.cookie.maxAge = 60 * 1000;
+    data["error"] = "";
+    return res.redirect("/Text/" + textId);
+  } else {
+    data["error"] = "Incorrect password";
+
+    return res.redirect("/Text/" + textId);
   }
 });
 

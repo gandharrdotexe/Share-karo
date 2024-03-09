@@ -4,13 +4,16 @@
 <body>
     <%- include('./partials/navbar.ejs') %>
 
-    <form action="/Text/save" method="post">
+    
     <div class="container">
+      
         <div class="row">
+          <form action="/Text/save" method="post">
             <textarea id="content" name="content" placeholder="Enter your text here..." class="notepad mt-2"><%=content%></textarea>
             <!-- save button -->
 
             <div class="save-lock-btn">
+            
                 <button type="submit" class="bookmarkBtn">
                     <span class="IconContainer">
                       <svg viewBox="0 0 384 512" height="0.9em" class="icon">
@@ -21,7 +24,7 @@
                     </span>
                     <p  class="text">Save</p>
                   </button>
-
+                <% if(lockButton) {%>
                   <button type="button" class="bookmarkBtn2" id="showPopup">
                     <span class="IconContainer2">
                       <svg class="svg-icon2" viewBox="0 0 20 20">
@@ -30,32 +33,39 @@
                     </span>
                     <p class="text">Lock</p>
                   </button>
+                  <% } %>
             </div>
-            <form action="/Text/lock" method="post">
+            </form>
+            <form >
             <div id="popup" class="popup">
               <h1 style="text-decoration: bold;">Do you want to Lock this page content ??</h1>
               <p>Locking this page disable other public users to see the content written</p>
-              <input type="text" name="passkey" id="passkey" placeholder="Enter a passkey to Lock" style="margin-top: 10px; padding: 10px; width: 95%; background-color: #1E1E1E; border-radius: 12px; color: #709f44;">
+              <input type="text" name="passkey" id="passkey" placeholder="Enter a passkey to Lock" style="margin-top: 10px; padding: 10px; width: 95%; background-color: #1E1E1E; border-radius: 12px; color: #709f44;" >
               
               <div class="lock-cancel-btn">
                 <button type="button" id="hidePopup">Cancel</button>
-                <button type="submit" id="lock">Lock</button>
+                <button type="submit" id="lock" formaction="/Text/lock" formmethod="post" >Lock</button>
               </div>
             
+
             </div>
             </form>
+           
+              
             <!-- Overlay div -->
             <div id="overlay" class="overlay"></div>
 
         </div>
     </div>
-    </form>
+    
     <script>
 
+      
       document.getElementById('showPopup').addEventListener("click", ()=>{
         document.getElementById('popup').style.display = 'block';
         document.getElementById('overlay').style.display = 'block';
       });
+    
 
       document.getElementById('hidePopup').addEventListener("click", ()=>{
         document.getElementById('popup').style.display = 'none';
