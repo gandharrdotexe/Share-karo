@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
+app.use(express.static("images"));
 app.use(helmet());
 
 dotenv.config();
@@ -178,6 +179,15 @@ app.get("/File/:fileId?", (req, res) => {
     return res.redirect("/File/" + randomkey);
   }
   res.render("file-share");
+});
+
+app.get("/about-devs", (req,res)=>{
+  res.render('about-devs');
+});
+
+// to test 404 page
+app.get("/404", (req,res)=>{
+  res.render('404-page-not-found');
 });
 
 app.listen(3000, () => console.log("Running on port 3000"));

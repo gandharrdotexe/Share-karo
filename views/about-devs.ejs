@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <%- include('./partials/head.ejs') %>
+<body>
+    <%- include('./partials/navbar.ejs') %>
+    <div class="container custom-container">
+        <div class="row d-flex justify-content-center align-items-center gap-1 " style="margin-top: 10%">
+            <div class="about-devs col-lg-3 col-md-6 col-sm-12">
+                <!-- first man -->
+                <%- include('./partials/cards.ejs') %>
+            </div>
+
+            <!-- second man -->
+            <div class="about-devs col-lg-6 col-md-6 col-sm-12">
+                <%- include('./partials/cards.ejs') %>
+            </div>
+
+            <!-- third man -->
+            <div class="about-devs col-lg-3 col-md-6 col-sm-12">
+                <%- include('./partials/cards.ejs') %>
+            </div>
+            
+
+            <!-- Forth man -->
+            <div class="about-devs col-lg-6 col-md-6 col-sm-12">
+                <%- include('./partials/cards.ejs') %>
+            </div>
+    </div>
+    
+</body>
+</html>
