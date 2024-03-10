@@ -1,7 +1,7 @@
 const express = require("express");
 const { generateRandomKey, encrypt, decrypt } = require("./functions");
 const { MongoClient, GridFSBucket, ReturnDocument } = require("mongodb");
-
+const dotenv = require("dotenv");
 const app = express();
 const helmet = require("helmet");
 const session = require("express-session");
@@ -11,6 +11,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 app.use(helmet());
 
+dotenv.config();
 app.use(cookieParser());
 app.use(
   session({
@@ -38,9 +39,7 @@ app.use(
 );
 
 // variable diclaration
-const uri =
-  "mongodb+srv://Mithra707:*Mithrajeeth*@cluster0.2gpt44h.mongodb.net";
-const encyptKey = "Mithrajeeth18";
+
 var textId = "";
 const data = {
   content: "",
@@ -50,8 +49,9 @@ const data = {
   Filestatus: "",
   Filekey: "",
 };
-const client = new MongoClient(uri);
+const client = new MongoClient(process.env.URI);
 let gfs;
+const encyptKey = process.env.encyptKey;
 
 // connection chalu
 client
