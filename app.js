@@ -15,7 +15,7 @@ dotenv.config();
 app.use(cookieParser());
 app.use(
   session({
-    secret: "your_secret_key",
+    secret: process.env.sessionKey,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false },
