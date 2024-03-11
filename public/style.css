@@ -1146,3 +1146,15 @@ body{
 .text_4043 {
   transform: scaleY(24.5) scaleX(9);
 }
+
+
+.website-footer{
+  position: absolute;
+  width: 100%;
+  height: 15%;
+  background-color: #2B2B2B;
+  margin-bottom: 0;
+  display: flex;
+  
+  
+}
