@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
     <%- include('./partials/head.ejs') %>
-    <body class="vh-100 overflow-hidden">
+    <body class="vh-100">
         <%- include('./partials/navbar.ejs') %>
-        <div class="container">
+        <main class="container" style="margin-bottom: 200px;">
             <div class="row justify-content-md-center">
                 <div class="col-lg-6 col-md-12 col-sm-12" style="display: flex; justify-content: center; align-items: center; margin-top: 10%;">
                     <a href="/File/" class="col-lg-6 col-md-12 col-sm-12" style="display: flex; justify-content: center; align-items: center;  text-decoration: none;">
@@ -48,8 +48,8 @@
                 </a>
                 
             </div>
-        </div>
-        
+        </main>
+        <%- include('./partials/footer.ejs') %>
     </body>
 </html>
 
