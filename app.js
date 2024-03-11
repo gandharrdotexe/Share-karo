@@ -181,13 +181,13 @@ app.get("/File/:fileId?", (req, res) => {
   res.render("file-share");
 });
 
-app.get("/about-devs", (req,res)=>{
-  res.render('about-devs');
+app.get("/about-devs", (req, res) => {
+  res.render("about-devs");
 });
 
 // to test 404 page
-app.use((req,res)=>{
-  res.render('404-page-not-found');
+app.use((req, res) => {
+  res.render("404-page-not-found");
 });
 
 app.listen(3000, () => console.log("Running on port 3000"));
