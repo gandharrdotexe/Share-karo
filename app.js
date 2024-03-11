@@ -2,6 +2,7 @@ const express = require("express");
 const { generateRandomKey, encrypt, decrypt } = require("./functions");
 const { MongoClient, GridFSBucket, ReturnDocument } = require("mongodb");
 const dotenv = require("dotenv");
+const multer = require("multer");
 const app = express();
 const helmet = require("helmet");
 const session = require("express-session");
@@ -39,7 +40,7 @@ app.use(
   })
 );
 
-// variable diclaration
+//----------------------------------------variable diclaration---------------------------------------//
 
 var textId = "";
 const data = {
@@ -54,7 +55,10 @@ const client = new MongoClient(process.env.URI);
 let gfs;
 const encyptKey = process.env.encyptKey;
 
-// connection chalu
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+//------------------------------------------- connection -------------------------------------------//
 client
   .connect()
   .then(() => {
@@ -66,7 +70,7 @@ client
   })
   .catch((err) => console.error(err));
 
-// routes
+//---------------------------------------------routes-----------------------------------------//
 app.get("/", (req, res) => {
   res.render("index");
 });
@@ -75,13 +79,15 @@ app.get("/get-started", (req, res) => {
   res.render("get-started");
 });
 
-app.get(["/Text/homePage", "/homePage", "/File/homePage"], (req, res) => {
-  res.redirect("/");
+app.get("/about-devs", (req, res) => {
+  res.render("about-devs");
 });
+
+// ----------------------------------------Text sharing ----------------------------------- //
 
 app.post("/Text/save", async (req, res) => {
   var encryptData = encrypt(req.body.content, encyptKey);
-  //console.log(req.body.content);
+
   await client
     .db("Share-Note")
     .collection("Data")
@@ -96,7 +102,7 @@ app.post("/Text/save", async (req, res) => {
 
 app.post("/Text/lock", async (req, res) => {
   var encryptPaskey = encrypt(req.body.passkey, encyptKey);
-  //console.log(encryptPaskey);
+
   await client
     .db("Share-Note")
     .collection("Lock")
@@ -157,8 +163,7 @@ app.post("/Text/unlock", async (req, res) => {
     .db("Share-Note")
     .collection("Lock")
     .findOne({ _id: textId });
-  // console.log(DBdata);
-  //passkey = "556de47abc663f343b01f76a06c46c05";
+
   if (pass === decrypt(DBdata.Pass, encyptKey)) {
     req.session.PageUnlocked = textId;
     req.session.cookie.expires = new Date(Date.now() + 2 * 60 * 1000);
@@ -172,6 +177,8 @@ app.post("/Text/unlock", async (req, res) => {
   }
 });
 
+//------------------------------------------- File Sharing --------------------------------------------//
+
 app.get("/File/:fileId?", (req, res) => {
   fileId = req.params.fileId;
   if (!fileId) {
@@ -181,13 +188,18 @@ app.get("/File/:fileId?", (req, res) => {
   res.render("file-share");
 });
 
-app.get("/about-devs", (req, res) => {
-  res.render("about-devs");
+app.post("/File/upload", upload.single("file"), (req, res) => {
+  if (!req.file) {
+    console.log("no file found");
+  } else {
+    console.log("file found");
+  }
 });
 
-// to test 404 page
+//--------------------------------------------- 404 ----------------------------------------------//
 app.use((req, res) => {
   res.render("404-page-not-found");
 });
+//--------------------------------------------------------------------------------------------------//
 
-app.listen(3000, () => console.log("Running on port 3000"));
+app.listen(3000, () => console.log("Running on port http://localhost:3000"));

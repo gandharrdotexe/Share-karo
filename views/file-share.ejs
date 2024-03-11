@@ -8,64 +8,74 @@
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12"
                         style="display: flex; justify-content: center; align-items: center; margin-top: 12%;">
-                        <div class="drag-area mt-5">
-                            <div class="icon d-flex justify-content-center align-items-center"><i
-                                    class="fas fa-cloud-upload-alt"></i></div>
-                            <header>Drag & Drop to Upload File</header>
-                            <span>OR</span>
-                            <button>Browse File</button>
-                            <input type="file" hidden>
-                        </div>
+                        <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return false">
+                            <div class="drag-area mt-5">
+                                <div class="icon d-flex justify-content-center align-items-center"><i
+                                        class="fas fa-cloud-upload-alt"></i></div>
+                                <header>Drag & Drop to Upload File</header>
+                                <span>OR</span>
+                                <button id="click">Browse File</button>
+                                <input type="file" name="file" hidden>
+                            </div>
                     </div>
 
-                    <div class="lock-cancel-btn col-lg-12 col-md-12 col-sm-12" style="transform: translateY(-40px);" >
-                        <button class="cssbuttons-io-button">
-                            <svg viewBox="0 0 640 512" fill="white" height="1em" xmlns="http://www.w3.org/2000/svg"><path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"></path></svg>
-                             <span>Upload</span>
-                           </button>
+                    <div class="lock-cancel-btn col-lg-12 col-md-12 col-sm-12" style="transform: translateY(-40px);">
+                        <button type="submit" class="cssbuttons-io-button">
+                            <svg viewBox="0 0 640 512" fill="white" height="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z">
+                                </path>
+                            </svg>
+                            <span>Upload</span>
+                        </button>
                     </div>
                 </div>
-                
+                </form>
 
-                <script>
-                    const dropArea = document.querySelector(".drag-area"),
-                        dragText = dropArea.querySelector("header"),
-                        button = dropArea.querySelector("button"),
-                        input = dropArea.querySelector("input");
-                    let file;
+<script>
+    const dropArea = document.querySelector(".drag-area"),
+        dragText = dropArea.querySelector("header"),
+        button = dropArea.querySelector("button"),
+        input = dropArea.querySelector("input");
+    let file;
 
-                    button.onclick = () =>
-                    {
-                        input.click();
-                    }
+    button.onclick = () =>
+    {
+        input.click();
+    }
 
-                    input.addEventListener("change", function ()
-                    {
-                        file = this.files[0];
-                        dropArea.classList.add("active");
-                        showFile();
-                    });
+    button.addEventListener("click", function ()
+    {
+        dragText.textContent = "Drag & Drop to Upload File";
+    });
 
-                    dropArea.addEventListener("dragover", (event) =>
-                    {
-                        event.preventDefault();
-                        dropArea.classList.add("active");
-                        dragText.textContent = "Release to Upload File";
-                    });
+    input.addEventListener("change", function ()
+    {
+        file = this.files[0];
+        dropArea.classList.add("active");
+        showFile();
+    });
 
-                    dropArea.addEventListener("dragleave", () =>
-                    {
-                        dropArea.classList.remove("active");
-                        dragText.textContent = "Drag & Drop to Upload File";
-                    });
+    dropArea.addEventListener("dragover", (event) =>
+    {
+        event.preventDefault();
+        dropArea.classList.add("active");
+        dragText.textContent = "Release to Upload File";
+    });
 
-                    dropArea.addEventListener("drop", (event) =>
-                    {
-                        event.preventDefault();
-                        file = event.dataTransfer.files[0];
-                        console.log(file);
-                        showFile();
-                    });
+    dropArea.addEventListener("dragleave", () =>
+    {
+        dropArea.classList.remove("active");
+        dragText.textContent = "Drag & Drop to Upload File";
+    });
+
+    dropArea.addEventListener("drop", (event) =>
+    {
+        event.preventDefault();
+        file = event.dataTransfer.files[0];
+        console.log(file);
+        showFile();
+    });
 
                     function showFile()
                     {
@@ -77,8 +87,7 @@
                         dragText.textContent = fileName + " (" + sizeToShow + ")";
                     }
                 </script>
-            </main>
-            <%- include('./partials/footer.ejs') %>
+            </div>
     </body>
 
 </html>
