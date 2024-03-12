@@ -4,7 +4,7 @@
 
     <body class="vh-100">
         <%- include('./partials/navbar.ejs') %>
-            <main class="container" style="margin-bottom: 250px;">
+            <main class="container" style="margin-bottom: 270px;">
                 <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return false"></form>
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12"
@@ -19,8 +19,8 @@
                                 <input type="file" name="file" hidden>
                             </div>
                     </div>
-
-                    <div class="lock-cancel-btn col-lg-12 col-md-12 col-sm-12" style="transform: translateY(-40px);">
+                    <!-- lock-cancel-btn ke jagah save-lock-btn dala -->
+                    <div class="save-lock-btn col-lg-12 col-md-12 col-sm-12" style="transform: translateY(170px); padding-right: 0.2em;">
                         <button type="submit" class="cssbuttons-io-button">
                             <svg viewBox="0 0 640 512" fill="white" height="1em" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -88,7 +88,8 @@
                         dragText.textContent = fileName + " (" + sizeToShow + ")";
                     }
                 </script>
-            </div>
+            </main>
+            <%- include('./partials/footer.ejs') %>
     </body>
 
 </html>

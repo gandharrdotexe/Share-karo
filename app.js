@@ -39,8 +39,10 @@ app.use(
         "'unsafe-inline'",
         "https://cdn.jsdelivr.net",
         "https://unpkg.com",
+        "https://kit.fontawesome.com"
       ],
-      connectSrc: ["'self'", "https://lottie.host"],
+      connectSrc: ["'self'", "https://lottie.host", "https://fontawesome.com", "https://ka-f.fontawesome.com"],
+
       // Add other directives as needed
     },
   })
