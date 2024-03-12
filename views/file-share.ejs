@@ -5,16 +5,17 @@
     <body class="vh-100">
         <%- include('./partials/navbar.ejs') %>
             <main class="container" style="margin-bottom: 250px;">
+                <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return false"></form>
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12"
                         style="display: flex; justify-content: center; align-items: center; margin-top: 12%;">
-                        <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return false">
+                        
                             <div class="drag-area mt-5">
                                 <div class="icon d-flex justify-content-center align-items-center"><i
                                         class="fas fa-cloud-upload-alt"></i></div>
                                 <header>Drag & Drop to Upload File</header>
                                 <span>OR</span>
-                                <button id="click">Browse File</button>
+                                <button type="button" id="click">Browse File</button>
                                 <input type="file" name="file" hidden>
                             </div>
                     </div>
