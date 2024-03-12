@@ -215,7 +215,7 @@ app.post("/File/upload", upload.single("file"), (req, res) => {
 
     const id = uploadStream.id;
 
-    console.log(size);
+    // console.log(size);
     readableStream
       .pipe(uploadStream)
       .on("error", (err) => {
