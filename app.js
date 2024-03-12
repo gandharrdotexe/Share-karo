@@ -43,6 +43,7 @@ app.use(
 //----------------------------------------variable diclaration---------------------------------------//
 
 var textId = "";
+var fileId = "";
 const data = {
   content: "",
   showPopup: false,
@@ -191,9 +192,35 @@ app.get("/File/:fileId?", (req, res) => {
 app.post("/File/upload", upload.single("file"), (req, res) => {
   if (!req.file) {
     console.log("no file found");
-  } else {
-    console.log("file found");
   }
+  const fileData = req.file.buffer;
+  const originalFilename = req.file.originalname; // Get the original filename
+  //const fileExtension = path.extname(originalFilename).toLowerCase(); // Extract the file extension
+  console.log(originalFilename);
+
+  const readableStream = new Readable();
+  readableStream.push(fileData);
+  readableStream.push(null);
+
+  const uploadStream = gfs.openUploadStream(randomKey, {
+    metadata: { originalFilename },
+    _id: fileId,
+  });
+  //const id = uploadStream.id;
+
+  readableStream
+    .pipe(uploadStream)
+    .on("error", (err) => {
+      console.error("Error uploading file to GridFS:", err);
+      res.status(500).send("Internal Server Error");
+    })
+    .on("finish", async () => {
+      console.log("File uploaded successfully");
+
+      //data["Filekey"] = randomKey;
+      data["Filestatus"] = "File uploaded successfully";
+      res.redirect("/Files/" + fileId);
+    });
 });
 
 //--------------------------------------------- 404 ----------------------------------------------//
