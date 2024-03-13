@@ -39,9 +39,14 @@ app.use(
         "'unsafe-inline'",
         "https://cdn.jsdelivr.net",
         "https://unpkg.com",
-        "https://kit.fontawesome.com"
+        "https://kit.fontawesome.com",
       ],
-      connectSrc: ["'self'", "https://lottie.host", "https://fontawesome.com", "https://ka-f.fontawesome.com"],
+      connectSrc: [
+        "'self'",
+        "https://lottie.host",
+        "https://fontawesome.com",
+        "https://ka-f.fontawesome.com",
+      ],
 
       // Add other directives as needed
     },
@@ -57,7 +62,8 @@ const data = {
   showPopup: false,
   lockButton: true,
   error: "",
-  Filestatus: "",
+  File: false,
+  fileName: "",
   Filekey: "",
 };
 const client = new MongoClient(process.env.URI);
@@ -188,13 +194,26 @@ app.post("/Text/unlock", async (req, res) => {
 
 //------------------------------------------- File Sharing --------------------------------------------//
 
-app.get("/File/:fileId?", (req, res) => {
+app.get("/File/:fileId?", async (req, res) => {
   fileId = req.params.fileId;
   if (!fileId) {
     var randomkey = generateRandomKey(5);
     return res.redirect("/File/" + randomkey);
   }
-  res.render("file-share");
+  const containsFile = await client
+    .db("Share-Note")
+    .collection("FileDetails")
+    .findOne({ _id: fileId });
+  if (containsFile) {
+    data["File"] = true;
+    data["fileName"] =
+      containsFile.Filename + " " + "(" + containsFile.size + ")";
+    // console.log(containsFile);
+  } else {
+    data["File"] = false;
+    //console.log(containsFile);
+  }
+  return res.render("file-share", data);
 });
 
 app.post("/File/upload", upload.single("file"), (req, res) => {
@@ -202,8 +221,7 @@ app.post("/File/upload", upload.single("file"), (req, res) => {
     console.log("no file found");
   } else {
     const fileData = req.file.buffer;
-    const originalFilename = req.file.originalname; // Get the original filename
-    //const fileExtension = path.extname(originalFilename).toLowerCase(); // Extract the file extension
+    const originalFilename = req.file.originalname;
     console.log(originalFilename);
 
     const readableStream = new Readable();
@@ -211,11 +229,9 @@ app.post("/File/upload", upload.single("file"), (req, res) => {
     readableStream.push(null);
 
     const uploadStream = gfs.openUploadStream(originalFilename);
-    //const id = uploadStream.id;
 
     const id = uploadStream.id;
 
-    // console.log(size);
     readableStream
       .pipe(uploadStream)
       .on("error", (err) => {
@@ -234,11 +250,34 @@ app.post("/File/upload", upload.single("file"), (req, res) => {
           size: fileSizeHumanReadable,
         });
 
-        data["Filekey"] = fileId;
+        //data["Filekey"] = fileId;
         data["Filestatus"] = "File uploaded successfully";
 
         res.redirect("/File/" + fileId);
       });
+  }
+});
+
+app.post("/File/download", async (req, res) => {
+  try {
+    const fileRecord = await client
+      .db("Share-Note")
+      .collection("FileDetails")
+      .findOne({ _id: fileId });
+
+    if (!fileRecord) {
+      return res.status(404).send("File not found");
+    }
+
+    const Filename = fileRecord.Filename;
+    const fileid = fileRecord.fileId;
+    const downloadStream = gfs.openDownloadStream(fileid);
+    res.set("Content-Disposition", `attachment; filename=${Filename}`);
+    downloadStream.pipe(res);
+    ~``;
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
