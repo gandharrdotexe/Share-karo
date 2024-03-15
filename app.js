@@ -4,6 +4,8 @@ const {
   encrypt,
   decrypt,
   convertBytesToReadable,
+  dev_details_1,
+  dev_details_2,
 } = require("./functions");
 const { MongoClient, GridFSBucket, ReturnDocument } = require("mongodb");
 const dotenv = require("dotenv");
@@ -95,7 +97,7 @@ app.get("/get-started", (req, res) => {
 });
 
 app.get("/about-devs", (req, res) => {
-  res.render("about-devs");
+  res.render("about-devs", { dev_details_1, dev_details_2 });
 });
 
 // ----------------------------------------Text sharing ----------------------------------- //

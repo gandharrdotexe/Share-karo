@@ -32,9 +32,31 @@ function convertBytesToReadable(bytes) {
   return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
 }
 
+const dev_details_1 = {
+  name: "Mithrajeeth Yadavar",
+  detail: "BackEnd developer",
+  image: "./mj_abt_dev.jpeg",
+  mail: "mithra86753@gmail.com",
+  X: "https://x.com/Mithra_707?t=s6RXzWdnalAJ73DGBGr0JA&s=09",
+  insta: "https://www.instagram.com/mithra_707/",
+  github: "https://github.com/mithrajeeth18",
+};
+
+const dev_details_2 = {
+  name: "Gandhar Bagde",
+  detail: "FrontEnd developer",
+  image: "./gb-about-devs.png",
+  mail: "gandharbagde@gmail.com",
+  X: "https://twitter.com/gandharbagde_",
+  insta: "https://www.instagram.com/iamgandharrr._/",
+  github: "https://github.com/gandharrdotexe",
+};
+
 module.exports = {
   generateRandomKey,
   encrypt,
   decrypt,
   convertBytesToReadable,
+  dev_details_1,
+  dev_details_2,
 };
