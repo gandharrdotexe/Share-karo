@@ -1,30 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
     <%- include('./partials/head.ejs') %>
-<body>
+<body style="height: 100vh;">
     <%- include('./partials/navbar.ejs') %>
-    <div class="container custom-container">
-        <div class="row d-flex justify-content-center align-items-center gap-1 " style="margin-top: 10%">
-            <div class="about-devs col-lg-3 col-md-6 col-sm-12">
+    <div class="custom-container container">
+        <div class="about-devs-box row d-flex justify-content-center align-items-center" style="margin-top: 10%">
+            <div class="dev col-lg-3 col-md-6 col-sm-12">
+                <div class="about-devs d-flex align-items-center justify-content-center">
+                    <%- include('./partials/cards.ejs', dev_details_1) %>
+                </div>
                 <!-- first man -->
-                <%- include('./partials/cards.ejs', dev_details_1) %>
+                
             </div>
 
             <!-- second man -->
-            <div class="about-devs col-lg-6 col-md-6 col-sm-12">
-                <%- include('./partials/cards.ejs',dev_details_2) %>
+            <div class="dev col-lg-3 col-md-6 col-sm-12">
+                <div class="about-devs d-flex align-items-center justify-content-center">
+                    <%- include('./partials/cards.ejs', dev_details_2) %>
+                </div> 
             </div>
-
-            <!-- third man
-            <div class="about-devs col-lg-3 col-md-6 col-sm-12">
-                <%- //include('./partials/cards.ejs') %>
-            </div>
-            -->
+            
             
 
             
             
             
+        </div>
+
     </div>
     <%- include('./partials/footer.ejs') %>
 </body>
