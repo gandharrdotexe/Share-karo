@@ -1164,3 +1164,14 @@ body{
   color: beige;
    /* Adjust icon color */
 }
+
+.custom-container{
+  margin-bottom: 300px;
+}
+
+.about-devs-box{
+  display: flex;
+  justify-content: center;
+  align-items: space-between;
+  gap: 45px;
+}
