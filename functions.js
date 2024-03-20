@@ -40,6 +40,8 @@ const dev_details_1 = {
   X: "https://x.com/Mithra_707?t=s6RXzWdnalAJ73DGBGr0JA&s=09",
   insta: "https://www.instagram.com/mithra_707/",
   github: "https://github.com/mithrajeeth18",
+  linkdin:
+    "https://www.linkedin.com/in/mithrajeeth-yadavar-a3381727b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
 };
 
 const dev_details_2 = {
@@ -50,6 +52,8 @@ const dev_details_2 = {
   X: "https://twitter.com/gandharbagde_",
   insta: "https://www.instagram.com/iamgandharrr._/",
   github: "https://github.com/gandharrdotexe",
+  linkdin:
+    "https://www.linkedin.com/in/gandhar-bagde-4406032a9?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
 };
 
 module.exports = {
