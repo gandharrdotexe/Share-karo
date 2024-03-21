@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<%- include('./partials/head.ejs') %>
+<%- include('./partials/head.ejs',{Title:"File Share"}) %>
 
     <body class="vh-100">
         <%- include('./partials/navbar.ejs') %>
@@ -50,7 +50,7 @@
                             <!-- lock-cancel-btn ke jagah save-lock-btn dala -->
                             <div class="save-lock-btn col-lg-12 col-md-12 col-sm-12"
                                 style="transform: translateY(170px); padding-right: 0.2em;">
-                                <button type="button" class="cssbuttons-io-button">
+                                <button type="button" id="showPopup" class="cssbuttons-io-button">
                                     <i class="fa-duotone fa-broom-wide"></i>
                                     <span>Clear File</span>
                                 </button>
@@ -58,7 +58,34 @@
                         </div>
                     </form>
                     <% } %>
+
+                    <form>
+                        <div id="popup" class="popup">
+                            <h1 style="text-decoration: bold;">Do you want to Clear this URL's file ??</h1>
+                            <p>Clearing file will permently delete file form cloud </p>
+                            <div class="lock-cancel-btn">
+                                <button type="button" id="hidePopup">Cancel</button>
+                                <button type="submit" id="lock" formaction="/Text/lock" formmethod="post">Clear</button>
+                            </div>
+                    
+                    
+                        </div>
+                    </form>
+                    
                 <script>
+
+                    document.getElementById('showPopup').addEventListener("click", () =>
+                        {
+                            document.getElementById('popup').style.display = 'block';
+                            document.getElementById('overlay').style.display = 'block';
+                        });
+
+
+                        document.getElementById('hidePopup').addEventListener("click", () =>
+                        {
+                            document.getElementById('popup').style.display = 'none';
+                            document.getElementById('overlay').style.display = 'none';
+                        });
                     const dropArea = document.querySelector(".drag-area"),
                         dragText = dropArea.querySelector("header"),
                         button = dropArea.querySelector("button"),
@@ -79,7 +106,7 @@
                     {
                         
 
-                        const maxFileSizeMB = 20;
+                        const maxFileSizeMB = 0;
                         file = this.files[0];
                         const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
 

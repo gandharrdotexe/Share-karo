@@ -283,6 +283,10 @@ app.post("/File/download", async (req, res) => {
   }
 });
 
+app.post("/File/Clear", async(req, res) =>
+{
+  fileId;
+});
 //--------------------------------------------- 404 ----------------------------------------------//
 app.use((req, res) => {
   res.render("404-page-not-found");

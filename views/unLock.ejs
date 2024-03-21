@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<%- include('./partials/head.ejs') %>
+<%- include('./partials/head.ejs',{Title:"Locked URL"}) %>
 <body style="height: 100vh;">
 	<%- include('./partials/navbar.ejs') %>
 	<!-- <div class="container" id="lockPageContent">
@@ -12,7 +12,7 @@
 			<input type="password" name="passkey" placeholder="Enter passkey">
 			<br>
 			<a style="color: red;">
-				<%=error %>
+				
 			</a>
 			<br>
 			<button type="submit" class="bookmarkBtn2" id="showPopup">
