@@ -283,8 +283,7 @@ app.post("/File/download", async (req, res) => {
   }
 });
 
-app.post("/File/Clear", async(req, res) =>
-{
+app.post("/File/Clear", async (req, res) => {
   fileId;
 });
 //--------------------------------------------- 404 ----------------------------------------------//

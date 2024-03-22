@@ -3,7 +3,7 @@
 <%- include('./partials/head.ejs',{Title:"File Share"}) %>
 
     <body class="vh-100">
-        <%- include('./partials/navbar.ejs') %>
+        <%- include('./partials/navbar.ejs',{active4:"active",active1:"",active2:"",active3:""}) %>
             <main class="container" style="margin-bottom: 250px;">
                 <%if(!File){%>
                 <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return false">
