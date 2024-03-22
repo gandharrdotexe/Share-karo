@@ -1155,7 +1155,7 @@ body{
   width: 100%;
   height: auto;
   background-color: #2B2B2B;
-  margin-bottom: 0;
+  /* margin-bottom: 0; */
   display: flex; 
 }
 
@@ -1176,4 +1176,9 @@ body{
   justify-content: center;
   align-items: space-between;
   gap: 45px;
+}
+
+.copyright-footer{
+  padding-top: 2vw;
+  font-size: medium;
 }
