@@ -508,6 +508,7 @@ body{
   top: 1.4rem;
   background: transparent;
   border: none;
+  z-index: 10;
 }
 
 .card1 .mail1 svg {

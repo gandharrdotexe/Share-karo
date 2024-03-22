@@ -47,7 +47,8 @@ const dev_details_1 = {
 const dev_details_2 = {
   name: "Gandhar Bagde",
   detail: "FrontEnd developer",
-  image: "./gb-about-devs.png",
+  // image: "./gb-about-devs.png",
+  image: "./2N8A1118.JPG",
   mail: "gandharbagde@gmail.com",
   X: "https://twitter.com/gandharbagde_",
   insta: "https://www.instagram.com/iamgandharrr._/",
