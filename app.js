@@ -100,6 +100,10 @@ app.get("/about-devs", (req, res) => {
   res.render("about-devs", { dev_details_1, dev_details_2 });
 });
 
+app.get("/how-to-use", (req,res)=>{
+  res.render("how-to-use");
+});
+
 // ----------------------------------------Text sharing ----------------------------------- //
 
 app.post("/Text/save", async (req, res) => {

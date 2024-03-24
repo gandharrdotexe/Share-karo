@@ -1182,3 +1182,14 @@ body{
   padding-top: 2vw;
   font-size: medium;
 }
+
+.points{
+  display: flex;
+  flex-direction: row;
+  height: auto;
+  width:80%;
+  background-color: #2B2B2B;
+  color: beige;
+  border-radius: 12px;
+  padding: 10px;
+}
