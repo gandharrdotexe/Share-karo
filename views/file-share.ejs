@@ -6,7 +6,7 @@
         <%- include('./partials/navbar.ejs',{active4:"active",active1:"",active2:"",active3:""}) %>
             <main class="container" style="margin-bottom: 250px;">
                 <%if(!File){%>
-                <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return false">
+                <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return true">
                     <div class="row">
                         <div class="col-lg-12 col-md-12 col-sm-12"
                             style="display: flex; justify-content: center; align-items: center; margin-top: 12%;">
@@ -32,9 +32,11 @@
                             </button>
                         </div>
                     </div>
+                    
                 </form>
+               
                 <% } else{%>
-                    <form action="/File/Download" method="post" enctype="multipart/form-data" onsubmit="return false">
+                    <form action="/File/download" method="post" enctype="multipart/form-data" onsubmit="return true">
                         <div class="row">
                             <div class="col-lg-12 col-md-12 col-sm-12"
                                 style="display: flex; justify-content: center; align-items: center; margin-top: 12%;">
@@ -43,7 +45,7 @@
                     
                                     <header><%=fileName%></header>
                                     <span>Download File</span>
-                                    <button type="submit" name="Download"><i class="fa-solid fa-download"></i></button>
+                                    <button type="submit" name="Download" id="Download"><i class="fa-solid fa-download"></i></button>
                                    
                                 </div>
                             </div>
@@ -57,35 +59,13 @@
                             </div>
                         </div>
                     </form>
+                    
                     <% } %>
 
-                    <form>
-                        <div id="popup" class="popup">
-                            <h1 style="text-decoration: bold;">Do you want to Clear this URL's file ??</h1>
-                            <p>Clearing file will permently delete file form cloud </p>
-                            <div class="lock-cancel-btn">
-                                <button type="button" id="hidePopup">Cancel</button>
-                                <button type="submit" id="lock" formaction="/Text/lock" formmethod="post">Clear</button>
-                            </div>
-                    
-                    
-                        </div>
-                    </form>
                     
                 <script>
 
-                    document.getElementById('showPopup').addEventListener("click", () =>
-                        {
-                            document.getElementById('popup').style.display = 'block';
-                            document.getElementById('overlay').style.display = 'block';
-                        });
-
-
-                        document.getElementById('hidePopup').addEventListener("click", () =>
-                        {
-                            document.getElementById('popup').style.display = 'none';
-                            document.getElementById('overlay').style.display = 'none';
-                        });
+                   
                     const dropArea = document.querySelector(".drag-area"),
                         dragText = dropArea.querySelector("header"),
                         button = dropArea.querySelector("button"),
@@ -102,11 +82,13 @@
                         dragText.textContent = "Drag & Drop to Upload File";
                     });
 
+                    
+
                     input.addEventListener("change", function ()
                     {
                         
 
-                        const maxFileSizeMB = 0;
+                        const maxFileSizeMB = 20;
                         file = this.files[0];
                         const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
 

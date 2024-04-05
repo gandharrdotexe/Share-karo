@@ -100,7 +100,7 @@ app.get("/about-devs", (req, res) => {
   res.render("about-devs", { dev_details_1, dev_details_2 });
 });
 
-app.get("/how-to-use", (req,res)=>{
+app.get("/how-to-use", (req, res) => {
   res.render("how-to-use");
 });
 
@@ -287,9 +287,6 @@ app.post("/File/download", async (req, res) => {
   }
 });
 
-app.post("/File/Clear", async (req, res) => {
-  fileId;
-});
 //--------------------------------------------- 404 ----------------------------------------------//
 app.use((req, res) => {
   res.render("404-page-not-found");
