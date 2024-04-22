@@ -52,11 +52,24 @@
                             <!-- lock-cancel-btn ke jagah save-lock-btn dala -->
                             <div class="save-lock-btn col-lg-12 col-md-12 col-sm-12"
                                 style="transform: translateY(170px); padding-right: 0.2em;">
-                                <button type="button" id="showPopup" class="cssbuttons-io-button">
+                                <button type="button" id="showPopup" class="cssbuttons-io-button" >
                                     <i class="fa-duotone fa-broom-wide"></i>
                                     <span>Clear File</span>
                                 </button>
                             </div>
+                        </div>
+                    </form>
+                    <form>
+                        <div id="popup" class="popup">
+                            <h1 style="text-decoration: bold;">Do you want to Clear file form this URl ??</h1>
+                            <p>Note: File cleared cannot be retrived </p>
+                            
+                            <div class="lock-cancel-btn">
+                                <button type="button" id="hidePopup">Cancel</button>
+                                <button type="submit" id="lock" formaction="/File/clear" formmethod="post">Clear File</button>
+                            </div>
+                    
+                    
                         </div>
                     </form>
                     
@@ -64,44 +77,43 @@
 
                     
                 <script>
-
-                   
-                    const dropArea = document.querySelector(".drag-area"),
-                        dragText = dropArea.querySelector("header"),
-                        button = dropArea.querySelector("button"),
-                        input = dropArea.querySelector("input");
+                    const dropArea = document.querySelector(".drag-area");
+                    const dragText = dropArea.querySelector("header");
+                    const button = dropArea.querySelector("button");
+                    const input = dropArea.querySelector("input");
                     let file;
 
-                    button.onclick = () =>
+                    const showPopupButton = document.getElementById('showPopup');
+                        if (showPopupButton)
+                        {
+                            showPopupButton.addEventListener("click", () =>
+                            {
+                                document.getElementById('popup').style.display = 'block';
+                                document.getElementById('overlay').style.display = 'block';
+                            });
+                        }
+
+                        const hidePopupButton = document.getElementById('hidePopup');
+                        if (hidePopupButton)
+                        {
+                            hidePopupButton.addEventListener("click", () =>
+                            {
+                                document.getElementById('popup').style.display = 'none';
+                                document.getElementById('overlay').style.display = 'none';
+                            });
+                        }
+
+
+
+                    button.addEventListener("click", () =>
                     {
                         input.click();
-                    }
-
-                    button.addEventListener("click", function ()
-                    {
-                        dragText.textContent = "Drag & Drop to Upload File";
                     });
-
-                    
 
                     input.addEventListener("change", function ()
                     {
-                        
-
-                        const maxFileSizeMB = 20;
                         file = this.files[0];
-                        const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
-
-                        if (fileSizeMB <= maxFileSizeMB)
-                        {
-                            dropArea.classList.add("active");
-                            showFile();
-                        } else
-                        {
-                            // Clear the input
-                            this.value = null;
-                            alert("File size exceeds the limit of " + maxFileSizeMB + "MB. Please select a file under 20MB.");
-                        }
+                        showFile();
                     });
 
                     dropArea.addEventListener("dragover", (event) =>
@@ -121,7 +133,6 @@
                     {
                         event.preventDefault();
                         file = event.dataTransfer.files[0];
-                        console.log(file);
                         showFile();
                     });
 
