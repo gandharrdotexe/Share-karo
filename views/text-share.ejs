@@ -8,7 +8,7 @@
     <div class="container">
       
         <div class="row">
-          <form action="/Text/save" method="post">
+          <form action="/Text/save" method="post" id="textForm">
             <textarea style="font-size: large;" id="content" name="content" placeholder="Enter your text here..." class="notepad mt-2"><%=content%></textarea>
             <!-- save button -->
 
@@ -55,7 +55,7 @@
                   </span>
                   <p class="text">Cancel</p>
                 </button>
-                
+
                  <button type="submit" class="bookmarkBtn2" id="lock" formaction="/Text/lock" formmethod="post">
                   <span class="IconContainer2">
                     <svg class="svg-icon2" viewBox="0 0 20 20">
@@ -91,6 +91,17 @@
         document.getElementById('overlay').style.display = 'none';
       });
       
+      document.addEventListener('keydown', function(event) {
+    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault();
+        const form = document.getElementById('textForm');
+        if (form) {
+            form.submit();
+        } else {
+            console.error('Form not found.');
+        }
+    }
+});
 
    
     </script>
