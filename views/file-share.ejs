@@ -61,14 +61,8 @@
                     </form>
                     <form>
                         <div id="popup" class="popup">
-<<<<<<< HEAD
                             <h1 style="text-decoration: bold;">Do you want to Clear this URL's file ??</h1>
-                            <p>Clearing file will permenantly delete file form cloud </p>
-=======
-                            <h1 style="text-decoration: bold;">Do you want to Clear file form this URl ??</h1>
-                            <p>Note: File cleared cannot be retrived </p>
-                            
->>>>>>> 76348ae6248ca0343ea14a510524ee6556dfb4f1
+                            <p>Clearing file will permanently delete file form cloud </p>
                             <div class="lock-cancel-btn">
                                 <button type="button" id="hidePopup">Cancel</button>
                                 <button type="submit" id="lock" formaction="/File/clear" formmethod="post">Clear File</button>
@@ -82,30 +76,10 @@
 
                     
                 <script>
-<<<<<<< HEAD
-
-                    // document.getElementById('showPopup').addEventListener("click", () =>
-                    //     {
-                    //         document.getElementById('popup').style.display = 'block';
-                    //         document.getElementById('overlay').style.display = 'block';
-                    //     });
-
-
-                    //     document.getElementById('hidePopup').addEventListener("click", () =>
-                    //     {
-                    //         document.getElementById('popup').style.display = 'none';
-                    //         document.getElementById('overlay').style.display = 'none';
-                    //     });
-                     const dropArea = document.querySelector(".drag-area"),
-                        dragText = dropArea.querySelector("header"),
-                        button = dropArea.querySelector("button"),
-                        input = dropArea.querySelector("input");
-=======
                     const dropArea = document.querySelector(".drag-area");
                     const dragText = dropArea.querySelector("header");
                     const button = dropArea.querySelector("button");
                     const input = dropArea.querySelector("input");
->>>>>>> 76348ae6248ca0343ea14a510524ee6556dfb4f1
                     let file;
 
                     const showPopupButton = document.getElementById('showPopup');
@@ -137,12 +111,9 @@
 
                     input.addEventListener("change", function ()
                     {
-<<<<<<< HEAD
                         
 
                         const maxFileSizeMB = 20;
-=======
->>>>>>> 76348ae6248ca0343ea14a510524ee6556dfb4f1
                         file = this.files[0];
                         showFile();
                     });
