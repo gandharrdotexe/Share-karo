@@ -100,7 +100,7 @@ app.get("/about-devs", (req, res) => {
   res.render("about-devs", { dev_details_1, dev_details_2 });
 });
 
-app.get("/how-to-use", (req,res)=>{
+app.get("/how-to-use", (req, res) => {
   res.render("how-to-use");
 });
 
@@ -287,9 +287,31 @@ app.post("/File/download", async (req, res) => {
   }
 });
 
-app.post("/File/Clear", async (req, res) => {
-  fileId;
+app.post("/File/clear", async (req, res) => {
+  try {
+    const db = client.db("Share-Note");
+
+    const fileRecord = await db
+      .collection("FileDetails")
+      .findOne({ _id: fileId });
+
+    if (!fileRecord) {
+      throw new Error("File record not found");
+    }
+
+    await Promise.all([
+      db.collection("uploads.files").deleteOne({ _id: fileId }),
+      db.collection("uploads.chunks").deleteOne({ files_id: fileId }),
+      db.collection("FileDetails").deleteOne({ _id: fileId }),
+    ]);
+
+    res.redirect("/File/" + fileId);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
+
 //--------------------------------------------- 404 ----------------------------------------------//
 app.use((req, res) => {
   res.render("404-page-not-found");

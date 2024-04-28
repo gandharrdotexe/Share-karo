@@ -6,7 +6,7 @@
         <%- include('./partials/navbar.ejs',{active4:"active",active1:"",active2:"",active3:""}) %>
             <main class="container" style="margin-bottom: 250px;">
                 <%if(!File){%>
-                <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return false">
+                <form action="/File/upload" method="post" enctype="multipart/form-data" onsubmit="return true">
                     <div class="row">
                         <div class="col-lg-12 col-md-12 col-sm-12"
                             style="display: flex; justify-content: center; align-items: center; margin-top: 12%;">
@@ -32,9 +32,11 @@
                             </button>
                         </div>
                     </div>
+                    
                 </form>
+               
                 <% } else{%>
-                    <form action="/File/Download" method="post" enctype="multipart/form-data" onsubmit="return false">
+                    <form action="/File/download" method="post" enctype="multipart/form-data" onsubmit="return true">
                         <div class="row">
                             <div class="col-lg-12 col-md-12 col-sm-12"
                                 style="display: flex; justify-content: center; align-items: center; margin-top: 12%;">
@@ -43,36 +45,44 @@
                     
                                     <header><%=fileName%></header>
                                     <span>Download File</span>
-                                    <button type="submit" name="Download"><i class="fa-solid fa-download"></i></button>
+                                    <button type="submit" name="Download" id="Download"><i class="fa-solid fa-download"></i></button>
                                    
                                 </div>
                             </div>
                             <!-- lock-cancel-btn ke jagah save-lock-btn dala -->
                             <div class="save-lock-btn col-lg-12 col-md-12 col-sm-12"
                                 style="transform: translateY(170px); padding-right: 0.2em;">
-                                <button type="button" id="showPopup" class="cssbuttons-io-button">
+                                <button type="button" id="showPopup" class="cssbuttons-io-button" >
                                     <i class="fa-duotone fa-broom-wide"></i>
                                     <span>Clear File</span>
                                 </button>
                             </div>
                         </div>
                     </form>
-                    <% } %>
-
                     <form>
                         <div id="popup" class="popup">
+<<<<<<< HEAD
                             <h1 style="text-decoration: bold;">Do you want to Clear this URL's file ??</h1>
                             <p>Clearing file will permenantly delete file form cloud </p>
+=======
+                            <h1 style="text-decoration: bold;">Do you want to Clear file form this URl ??</h1>
+                            <p>Note: File cleared cannot be retrived </p>
+                            
+>>>>>>> 76348ae6248ca0343ea14a510524ee6556dfb4f1
                             <div class="lock-cancel-btn">
                                 <button type="button" id="hidePopup">Cancel</button>
-                                <button type="submit" id="lock" formaction="/Text/lock" formmethod="post">Clear</button>
+                                <button type="submit" id="lock" formaction="/File/clear" formmethod="post">Clear File</button>
                             </div>
                     
                     
                         </div>
                     </form>
                     
+                    <% } %>
+
+                    
                 <script>
+<<<<<<< HEAD
 
                     // document.getElementById('showPopup').addEventListener("click", () =>
                     //     {
@@ -90,36 +100,51 @@
                         dragText = dropArea.querySelector("header"),
                         button = dropArea.querySelector("button"),
                         input = dropArea.querySelector("input");
+=======
+                    const dropArea = document.querySelector(".drag-area");
+                    const dragText = dropArea.querySelector("header");
+                    const button = dropArea.querySelector("button");
+                    const input = dropArea.querySelector("input");
+>>>>>>> 76348ae6248ca0343ea14a510524ee6556dfb4f1
                     let file;
 
-                    button.onclick = () =>
+                    const showPopupButton = document.getElementById('showPopup');
+                        if (showPopupButton)
+                        {
+                            showPopupButton.addEventListener("click", () =>
+                            {
+                                document.getElementById('popup').style.display = 'block';
+                                document.getElementById('overlay').style.display = 'block';
+                            });
+                        }
+
+                        const hidePopupButton = document.getElementById('hidePopup');
+                        if (hidePopupButton)
+                        {
+                            hidePopupButton.addEventListener("click", () =>
+                            {
+                                document.getElementById('popup').style.display = 'none';
+                                document.getElementById('overlay').style.display = 'none';
+                            });
+                        }
+
+
+
+                    button.addEventListener("click", () =>
                     {
                         input.click();
-                    }
-
-                    button.addEventListener("click", function ()
-                    {
-                        dragText.textContent = "Drag & Drop to Upload File";
                     });
 
                     input.addEventListener("change", function ()
                     {
+<<<<<<< HEAD
                         
 
                         const maxFileSizeMB = 20;
+=======
+>>>>>>> 76348ae6248ca0343ea14a510524ee6556dfb4f1
                         file = this.files[0];
-                        const fileSizeMB = file.size / (1024 * 1024); // Convert bytes to MB
-
-                        if (fileSizeMB <= maxFileSizeMB)
-                        {
-                            dropArea.classList.add("active");
-                            showFile();
-                        } else
-                        {
-                            // Clear the input
-                            this.value = null;
-                            alert("File size exceeds the limit of " + maxFileSizeMB + "MB. Please select a file under 20MB.");
-                        }
+                        showFile();
                     });
 
                     dropArea.addEventListener("dragover", (event) =>
@@ -139,7 +164,6 @@
                     {
                         event.preventDefault();
                         file = event.dataTransfer.files[0];
-                        console.log(file);
                         showFile();
                     });
 
