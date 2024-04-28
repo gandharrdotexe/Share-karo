@@ -1193,3 +1193,68 @@ body{
   border-radius: 12px;
   padding: 10px;
 }
+
+.bookmarkBtnCF {
+  width: 150px;
+  height: 42px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.349);
+  background-color: rgb(12, 12, 12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+
+.IconContainerCF {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(to bottom, rgb(255, 136, 255), rgb(172, 70, 255));
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 2;
+  transition-duration: 0.3s;
+  
+  
+}
+
+.icon {
+  border-radius: 1px;
+}
+
+.textCF {
+  height: 100%;
+  width: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 1;
+  transition-duration: 0.3s;
+  font-size: 1.04em;
+  margin-left:2px;
+  margin-top:16px;
+}
+
+.bookmarkBtnCF:hover .IconContainerCF {
+  width: 90px;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtnCF:hover .textCF {
+  transform: translate(10px);
+  width: 0;
+  font-size: 0;
+  transition-duration: 0.3s;
+}
+
+.bookmarkBtnCF:active {
+  transform: scale(0.95);
+  transition-duration: 0.3s;
+}
+
