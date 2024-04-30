@@ -6,6 +6,8 @@ const {
   convertBytesToReadable,
   dev_details_1,
   dev_details_2,
+  dev_details_3,
+  dev_details_4,
 } = require("./functions");
 const { MongoClient, GridFSBucket, ReturnDocument } = require("mongodb");
 const dotenv = require("dotenv");
@@ -49,8 +51,6 @@ app.use(
         "https://fontawesome.com",
         "https://ka-f.fontawesome.com",
       ],
-
-      // Add other directives as needed
     },
   })
 );
@@ -97,7 +97,12 @@ app.get("/get-started", (req, res) => {
 });
 
 app.get("/about-devs", (req, res) => {
-  res.render("about-devs", { dev_details_1, dev_details_2 });
+  res.render("about-devs", {
+    dev_details_1,
+    dev_details_2,
+    dev_details_3,
+    dev_details_4,
+  });
 });
 
 app.get("/how-to-use", (req, res) => {
@@ -214,10 +219,8 @@ app.get("/File/:fileId?", async (req, res) => {
     data["File"] = true;
     data["fileName"] =
       containsFile.Filename + " " + "(" + containsFile.size + ")";
-    // console.log(containsFile);
   } else {
     data["File"] = false;
-    //console.log(containsFile);
   }
   return res.render("file-share", data);
 });

@@ -56,7 +56,30 @@ const dev_details_2 = {
   linkdin:
     "https://www.linkedin.com/in/gandhar-bagde-4406032a9?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
 };
-
+const dev_details_3 = {
+  name: "Ibrahim Khan",
+  detail: "UI/UX Designer",
+  // image: "./gb-about-devs.png",
+  image: "./ibrahim.JPEG",
+  mail: "gandharbagde@gmail.com",
+  X: "https://twitter.com/gandharbagde_",
+  insta: "https://www.instagram.com/iamgandharrr._/",
+  github: "https://github.com/gandharrdotexe",
+  linkdin:
+    "https://www.linkedin.com/in/gandhar-bagde-4406032a9?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+};
+const dev_details_4 = {
+  name: "Satish Kumar",
+  detail: "Documentation Head ",
+  // image: "./gb-about-devs.png",
+  image: "./Satish.JPEG",
+  mail: "gandharbagde@gmail.com",
+  X: "https://twitter.com/gandharbagde_",
+  insta: "https://www.instagram.com/iamgandharrr._/",
+  github: "https://github.com/gandharrdotexe",
+  linkdin:
+    "https://www.linkedin.com/in/gandhar-bagde-4406032a9?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+};
 module.exports = {
   generateRandomKey,
   encrypt,
@@ -64,4 +87,6 @@ module.exports = {
   convertBytesToReadable,
   dev_details_1,
   dev_details_2,
+  dev_details_3,
+  dev_details_4,
 };
