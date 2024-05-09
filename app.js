@@ -6,8 +6,7 @@ const {
   convertBytesToReadable,
   dev_details_1,
   dev_details_2,
-  dev_details_3,
-  dev_details_4,
+  
 } = require("./functions");
 const { MongoClient, GridFSBucket, ReturnDocument } = require("mongodb");
 const dotenv = require("dotenv");
@@ -100,8 +99,7 @@ app.get("/about-devs", (req, res) => {
   res.render("about-devs", {
     dev_details_1,
     dev_details_2,
-    dev_details_3,
-    dev_details_4,
+   
   });
 });
 
