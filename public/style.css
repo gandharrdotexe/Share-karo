@@ -1258,3 +1258,70 @@ body{
   transition-duration: 0.3s;
 }
 
+/* I Understand Button Styles */
+.bookmarkBtnUnderstand {
+  width: 12em;
+  height: 3em;
+  border-radius: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition-duration: 0.3s;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.bookmarkBtnUnderstand:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.bookmarkBtnUnderstand:active {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
+}
+
+.IconContainerUnderstand {
+  width: 35px;
+  height: 35px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 2;
+  transition-duration: 0.3s;
+}
+
+.textUnderstand {
+  height: 100%;
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 1;
+  transition-duration: 0.3s;
+  font-size: 1.1em;
+  font-weight: 600;
+  padding-top: 0.8em;
+}
+
+.bookmarkBtnUnderstand:hover .IconContainerUnderstand {
+  width: 100px;
+  transition-duration: 0.3s;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.bookmarkBtnUnderstand:hover .textUnderstand {
+  transform: translate(10px);
+  width: 0;
+  font-size: 0;
+  transition-duration: 0.3s;
+}
+

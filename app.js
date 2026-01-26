@@ -338,6 +338,7 @@ const { Readable } = require("stream");
 const helmet = require("helmet");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const cron = require("node-cron");
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
@@ -398,8 +399,122 @@ client
       bucketName: "uploads",
     });
     console.log("GridFSBucket initialized");
+    
+    // Initialize cleanup task
+    initializeCleanupTask();
   })
   .catch((err) => console.error(err));
+
+//------------------------------------------- Cleanup Function -------------------------------------------//
+/**
+ * Cleanup function to remove files and data older than 30 days
+ * Only deletes records that have a createdAt field (new records will have this)
+ */
+async function cleanupOldFiles() {
+  try {
+    const db = client.db("Share-Note");
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    console.log(`Starting cleanup task at ${new Date().toISOString()}`);
+    console.log(`Removing records older than ${thirtyDaysAgo.toISOString()}`);
+
+    // Find and delete old text data (only records with createdAt field)
+    const oldTextData = await db
+      .collection("Data")
+      .find({ 
+        createdAt: { 
+          $exists: true, 
+          $lt: thirtyDaysAgo 
+        } 
+      })
+      .toArray();
+    
+    const textIdsToDelete = oldTextData.map((doc) => doc._id);
+    
+    if (textIdsToDelete.length > 0) {
+      await db.collection("Data").deleteMany({
+        _id: { $in: textIdsToDelete },
+      });
+      console.log(`Deleted ${textIdsToDelete.length} old text records`);
+    }
+
+    // Find and delete old lock records (only records with createdAt field)
+    const oldLockData = await db
+      .collection("Lock")
+      .find({ 
+        createdAt: { 
+          $exists: true, 
+          $lt: thirtyDaysAgo 
+        } 
+      })
+      .toArray();
+    
+    const lockIdsToDelete = oldLockData.map((doc) => doc._id);
+    
+    if (lockIdsToDelete.length > 0) {
+      await db.collection("Lock").deleteMany({
+        _id: { $in: lockIdsToDelete },
+      });
+      console.log(`Deleted ${lockIdsToDelete.length} old lock records`);
+    }
+
+    // Find and delete old file records and their GridFS files (only records with createdAt field)
+    const oldFileDetails = await db
+      .collection("FileDetails")
+      .find({ 
+        createdAt: { 
+          $exists: true, 
+          $lt: thirtyDaysAgo 
+        } 
+      })
+      .toArray();
+
+    if (oldFileDetails.length > 0) {
+      const fileIdsToDelete = oldFileDetails.map((doc) => doc._id);
+      const gridFSFileIds = oldFileDetails.map((doc) => doc.fileId);
+
+      // Delete GridFS files and chunks
+      for (const gridFSFileId of gridFSFileIds) {
+        try {
+          await db.collection("uploads.files").deleteOne({ _id: gridFSFileId });
+          await db.collection("uploads.chunks").deleteMany({ files_id: gridFSFileId });
+        } catch (error) {
+          console.error(`Error deleting GridFS file ${gridFSFileId}:`, error);
+        }
+      }
+
+      // Delete file details
+      await db.collection("FileDetails").deleteMany({
+        _id: { $in: fileIdsToDelete },
+      });
+      console.log(`Deleted ${oldFileDetails.length} old file records and their GridFS files`);
+    }
+
+    const totalDeleted = textIdsToDelete.length + lockIdsToDelete.length + oldFileDetails.length;
+    console.log(`Cleanup completed. Total records deleted: ${totalDeleted}`);
+  } catch (error) {
+    console.error("Error during cleanup task:", error);
+  }
+}
+
+/**
+ * Initialize the cleanup task to run daily at 2 AM
+ */
+function initializeCleanupTask() {
+  // Run cleanup daily at 2:00 AM
+  // Cron format: minute hour day month dayOfWeek
+  cron.schedule("0 2 * * *", async () => {
+    console.log("Running scheduled cleanup task...");
+    await cleanupOldFiles();
+  });
+
+  console.log("Cleanup task scheduled to run daily at 2:00 AM");
+  
+  // Optionally run cleanup immediately on startup (for testing)
+  // Uncomment the line below if you want to test the cleanup function on server start
+  // cleanupOldFiles();
+}
 
 //---------------------------------------------routes-----------------------------------------//
 app.get("/", (req, res) => {
@@ -432,7 +547,15 @@ app.post("/Text/save", async (req, res) => {
       .collection("Data")
       .updateOne(
         { _id: textId },
-        { $set: { content: encryptData } },
+        { 
+          $set: { 
+            content: encryptData,
+            createdAt: new Date()
+          },
+          $setOnInsert: {
+            createdAt: new Date()
+          }
+        },
         { upsert: true }
       );
 
@@ -452,7 +575,15 @@ app.post("/Text/lock", async (req, res) => {
       .collection("Lock")
       .updateOne(
         { _id: textId },
-        { $set: { Pass: encryptPaskey } },
+        { 
+          $set: { 
+            Pass: encryptPaskey,
+            createdAt: new Date()
+          },
+          $setOnInsert: {
+            createdAt: new Date()
+          }
+        },
         { upsert: true }
       );
 
@@ -633,6 +764,7 @@ app.post("/File/upload", upload.single("file"), (req, res) => {
           fileId: id,
           Filename: originalFilename,
           size: fileSizeHumanReadable,
+          createdAt: new Date(),
         });
 
         res.redirect("/File/" + fileId);
