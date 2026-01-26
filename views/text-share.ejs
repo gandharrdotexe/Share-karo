@@ -74,6 +74,26 @@
             <!-- Overlay div -->
             <div id="overlay" class="overlay"></div>
 
+            <!-- Warning Popup -->
+            <div id="warningPopup" class="popup" style="display: none;">
+                <h1 style="text-decoration: bold; color: beige; margin-bottom: 20px;">⚠️ Important Notice</h1>
+                <p style="color: beige; font-size: 1.1em; line-height: 1.6; margin-bottom: 30px;">
+                    This website is made for Speed Sharing purpose. Please do not use it for Storing Data, your data won't be available after 30 days. Make sure you have backed up your data.
+                </p>
+                <div class="lock-cancel-btn" style="position: relative; bottom: auto; right: auto; margin-top: 20px; justify-content: center;">
+                    <button class="bookmarkBtn" type="button" id="hideWarningPopup">
+                        <span class="IconContainer">
+                            <svg class="svg-icon" viewBox="0 0 20 20">
+                                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293l-3 3a1 1 0 01-1.414 0l-1.5-1.5a1 1 0 011.414-1.414L9 9.586l2.293-2.293a1 1 0 011.414 1.414z" fill="black"></path>
+                            </svg>
+                        </span>
+                        <p class="text" style="font-size: 0.85em;">I Understand</p>
+                    </button>
+                </div>
+            </div>
+            <!-- Warning Overlay -->
+            <div id="warningOverlay" class="overlay" style="display: none;"></div>
+
         </div>
     </div>
     
@@ -89,6 +109,21 @@
       document.getElementById('hidePopup').addEventListener("click", ()=>{
         document.getElementById('popup').style.display = 'none';
         document.getElementById('overlay').style.display = 'none';
+      });
+      
+      // Warning popup functionality
+      const hideWarningPopup = document.getElementById('hideWarningPopup');
+      if (hideWarningPopup) {
+          hideWarningPopup.addEventListener("click", ()=>{
+              document.getElementById('warningPopup').style.display = 'none';
+              document.getElementById('warningOverlay').style.display = 'none';
+          });
+      }
+
+      // Show warning popup on page load every time
+      window.addEventListener('DOMContentLoaded', function() {
+          document.getElementById('warningPopup').style.display = 'block';
+          document.getElementById('warningOverlay').style.display = 'block';
       });
       
       document.addEventListener('keydown', function(event) {

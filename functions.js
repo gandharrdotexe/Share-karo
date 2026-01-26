@@ -7,15 +7,35 @@ function generateRandomKey(n) {
 }
 
 function encrypt(text, key) {
-  const cipher = crypto.createCipher("aes-256-cbc", key);
+  // Derive a 32-byte key from the input key using SHA-256
+  const derivedKey = crypto.createHash("sha256").update(key).digest();
+  
+  // Generate a random 16-byte IV for AES-256-CBC
+  const iv = crypto.randomBytes(16);
+  
+  const cipher = crypto.createCipheriv("aes-256-cbc", derivedKey, iv);
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
-  return encrypted;
+  
+  // Prepend IV to the encrypted data (IV is not secret, just needs to be unique)
+  return iv.toString("hex") + ":" + encrypted;
 }
 
 function decrypt(encryptedText, key) {
-  const decipher = crypto.createDecipher("aes-256-cbc", key);
-  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  // Derive the same 32-byte key from the input key
+  const derivedKey = crypto.createHash("sha256").update(key).digest();
+  
+  // Extract IV and encrypted data
+  const parts = encryptedText.split(":");
+  if (parts.length !== 2) {
+    throw new Error("Invalid encrypted text format");
+  }
+  
+  const iv = Buffer.from(parts[0], "hex");
+  const encrypted = parts[1];
+  
+  const decipher = crypto.createDecipheriv("aes-256-cbc", derivedKey, iv);
+  let decrypted = decipher.update(encrypted, "hex", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;
 }
@@ -34,7 +54,7 @@ function convertBytesToReadable(bytes) {
 
 const dev_details_1 = {
   name: "Mithrajeeth Yadavar",
-  detail: "BackEnd developer",
+  detail: "BackEnd Developer",
   image: "./mj_abt_dev.jpeg",
   mail: "mithra86753@gmail.com",
   X: "https://x.com/Mithra_707?t=s6RXzWdnalAJ73DGBGr0JA&s=09",
@@ -45,7 +65,7 @@ const dev_details_1 = {
 
 const dev_details_2 = {
   name: "Gandhar Bagde",
-  detail: "FrontEnd developer",
+  detail: "Full Stack Developer",
   // image: "./gb-about-devs.png",
   image: "./2N8A1118.JPG",
   mail: "gandharbagde@gmail.com",
