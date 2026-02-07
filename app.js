@@ -549,8 +549,7 @@ app.post("/Text/save", async (req, res) => {
         { _id: textId },
         { 
           $set: { 
-            content: encryptData,
-            createdAt: new Date()
+            content: encryptData
           },
           $setOnInsert: {
             createdAt: new Date()
@@ -577,8 +576,7 @@ app.post("/Text/lock", async (req, res) => {
         { _id: textId },
         { 
           $set: { 
-            Pass: encryptPaskey,
-            createdAt: new Date()
+            Pass: encryptPaskey
           },
           $setOnInsert: {
             createdAt: new Date()
