@@ -3,13 +3,99 @@
     <%- include('./partials/head.ejs',{Title:"Text Share"}) %>
 <body>
     <%- include('./partials/navbar.ejs',{active4:"active",active1:"",active2:"",active3:""}) %>
+    <style>
+      .text-share-shell {
+        width: 100%;
+        max-width: 100%;
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .text-share-shell .row {
+        margin-left: 0;
+        margin-right: 0;
+      }
+
+      .text-share-shell form#textForm {
+        width: 100%;
+      }
+
+      .editor-first-fold .textarea-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #editorSurface {
+        width: 100%;
+        flex: 1;
+      }
+
+      .editor-first-fold {
+        min-height: calc(100dvh - var(--nav-offset, 72px));
+        display: flex;
+        flex-direction: column;
+      }
+
+      #contentEditor {
+        min-height: calc(100dvh - var(--nav-offset, 72px) - 36px);
+        max-height: calc(100dvh - var(--nav-offset, 72px) - 36px);
+        height: 100%;
+      }
+
+      .editor-meta {
+        margin-top: 28px;
+      }
+
+      .save-lock-btn {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 9999;
+        display: flex;
+        gap: 10px;
+      }
+
+      html, body, #contentEditor {
+        scrollbar-width: thin;
+        scrollbar-color: #7a7a7a #141414;
+      }
+
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar,
+      #contentEditor::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      html::-webkit-scrollbar-track,
+      body::-webkit-scrollbar-track,
+      #contentEditor::-webkit-scrollbar-track {
+        background: #141414;
+      }
+
+      html::-webkit-scrollbar-thumb,
+      body::-webkit-scrollbar-thumb,
+      #contentEditor::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #7f7f7f 0%, #5f5f5f 100%);
+        border-radius: 10px;
+        border: 2px solid #141414;
+      }
+
+      html::-webkit-scrollbar-thumb:hover,
+      body::-webkit-scrollbar-thumb:hover,
+      #contentEditor::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #9a9a9a 0%, #6f6f6f 100%);
+      }
+    </style>
 
     
-    <div class="container">
+    <div class="container-fluid text-share-shell">
       
         <div class="row">
           <form action="/Text/save" method="post" id="textForm">
             <input type="hidden" name="textId" value="<%= typeof textId !== 'undefined' ? textId : '' %>">
+            <div class="editor-first-fold">
             <div class="textarea-wrapper" style="position: relative;">
               <!-- Copy to clipboard button (top-right of textarea) -->
               <button
@@ -27,7 +113,7 @@
                   id="contentEditor"
                   contenteditable="true"
                   spellcheck="false"
-                  style="font-size: large; width: 100%; min-height: 360px; max-height: 62vh; overflow: auto; padding: 14px; color: #ececec; outline: none; white-space: pre-wrap; word-break: break-word;"
+                  style="font-size: large; width: 100%; overflow: auto; padding: 14px; color: #ececec; outline: none; white-space: pre-wrap; word-break: break-word;"
                 ><%=content%></div>
                 <div id="remoteCursorLayer" style="position: absolute; inset: 0; pointer-events: none;"></div>
               </div>
@@ -41,8 +127,10 @@
                 Line 1, Col 1
               </div>
             </div>
+            </div>
 
             <!-- Autosave status -->
+            <div class="editor-meta">
             <div id="saveStatus" style="margin-top: 4px; font-size: 0.85rem; color: #a0a0a0;">
               Autosave: idle
             </div>
@@ -51,6 +139,7 @@
             </div>
             <div id="liveUsers" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;"></div>
             <div id="liveActivity" style="margin-top: 8px; font-size: 0.85rem; color: #b5b5b5;"></div>
+            </div>
             <!-- save button -->
 
             <div class="save-lock-btn">
@@ -173,6 +262,15 @@
       }
 
       window.addEventListener('DOMContentLoaded', function() {
+        function syncViewportEditorHeight() {
+          const nav = document.querySelector('nav');
+          const navHeight = nav ? nav.offsetHeight : 0;
+          document.documentElement.style.setProperty('--nav-offset', `${navHeight}px`);
+        }
+
+        syncViewportEditorHeight();
+        window.addEventListener('resize', syncViewportEditorHeight);
+
         if (warningPopup && warningOverlay) {
           warningPopup.style.display = 'block';
           warningOverlay.style.display = 'block';
