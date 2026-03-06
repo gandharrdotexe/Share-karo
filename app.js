@@ -339,6 +339,11 @@ const helmet = require("helmet");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const cron = require("node-cron");
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+
+const httpServer = createServer(app);
+const io = new Server(httpServer);
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
@@ -370,6 +375,8 @@ app.use(
       ],
       connectSrc: [
         "'self'",
+        "ws:",
+        "wss:",
         "https://lottie.host",
         "https://fontawesome.com",
         "https://ka-f.fontawesome.com",
@@ -389,6 +396,186 @@ const encyptKey = process.env.encyptKey;
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+const liveDocs = new Map();
+const anonymousColors = [
+  "#f97316",
+  "#22c55e",
+  "#3b82f6",
+  "#eab308",
+  "#14b8a6",
+  "#ec4899",
+  "#f43f5e",
+  "#8b5cf6",
+];
+
+function buildRoomName(docId) {
+  return `text:${docId}`;
+}
+
+function getAnonymousIdentity() {
+  return {
+    name: `Anonymous-${Math.floor(Math.random() * 9000) + 1000}`,
+    color:
+      anonymousColors[Math.floor(Math.random() * anonymousColors.length)],
+  };
+}
+
+async function loadDocState(docId) {
+  if (liveDocs.has(docId)) {
+    return liveDocs.get(docId);
+  }
+
+  const containsData = await client
+    .db("Share-Note")
+    .collection("Data")
+    .findOne({ _id: docId });
+
+  const initialContent = containsData
+    ? decrypt(containsData.content, encyptKey)
+    : "";
+
+  const state = {
+    content: initialContent,
+    participants: new Map(),
+    saveTimer: null,
+  };
+
+  liveDocs.set(docId, state);
+  return state;
+}
+
+async function persistDocContent(docId, content) {
+  const encrypted = encrypt(content, encyptKey);
+  await client
+    .db("Share-Note")
+    .collection("Data")
+    .updateOne(
+      { _id: docId },
+      {
+        $set: {
+          content: encrypted,
+        },
+        $setOnInsert: {
+          createdAt: new Date(),
+        },
+      },
+      { upsert: true }
+    );
+}
+
+function scheduleDocSave(docId) {
+  const state = liveDocs.get(docId);
+  if (!state) return;
+
+  if (state.saveTimer) {
+    clearTimeout(state.saveTimer);
+  }
+
+  state.saveTimer = setTimeout(async () => {
+    try {
+      await persistDocContent(docId, state.content);
+    } catch (error) {
+      console.error(`Live save failed for ${docId}:`, error);
+    } finally {
+      state.saveTimer = null;
+      if (state.participants.size === 0) {
+        liveDocs.delete(docId);
+      }
+    }
+  }, 1200);
+}
+
+io.on("connection", (socket) => {
+  socket.on("text:join", async ({ textId: docId }) => {
+    try {
+      if (!docId || typeof docId !== "string") return;
+
+      const roomName = buildRoomName(docId);
+      const state = await loadDocState(docId);
+      const identity = getAnonymousIdentity();
+      const participant = {
+        id: socket.id,
+        name: identity.name,
+        color: identity.color,
+        cursor: 0,
+      };
+
+      socket.join(roomName);
+      socket.data.docId = docId;
+      state.participants.set(socket.id, participant);
+
+      socket.emit("text:init", {
+        content: state.content,
+        self: participant,
+        participants: Array.from(state.participants.values()),
+      });
+
+      socket.to(roomName).emit("presence:joined", participant);
+      io.to(roomName).emit(
+        "presence:list",
+        Array.from(state.participants.values())
+      );
+    } catch (error) {
+      console.error("Socket join error:", error);
+    }
+  });
+
+  socket.on("text:change", ({ textId: docId, content, cursor }) => {
+    const connectedDocId = socket.data.docId;
+    if (!connectedDocId || connectedDocId !== docId) return;
+    if (typeof content !== "string") return;
+
+    const state = liveDocs.get(docId);
+    if (!state) return;
+
+    state.content = content;
+    const participant = state.participants.get(socket.id);
+    if (participant) {
+      participant.cursor = Number.isInteger(cursor) ? cursor : participant.cursor;
+      state.participants.set(socket.id, participant);
+    }
+
+    socket.to(buildRoomName(docId)).emit("text:remote", {
+      content,
+      participant,
+    });
+    scheduleDocSave(docId);
+  });
+
+  socket.on("cursor:move", ({ textId: docId, cursor }) => {
+    const connectedDocId = socket.data.docId;
+    if (!connectedDocId || connectedDocId !== docId) return;
+
+    const state = liveDocs.get(docId);
+    if (!state) return;
+
+    const participant = state.participants.get(socket.id);
+    if (!participant) return;
+
+    participant.cursor = Number.isInteger(cursor) ? cursor : participant.cursor;
+    state.participants.set(socket.id, participant);
+    socket.to(buildRoomName(docId)).emit("cursor:remote", participant);
+  });
+
+  socket.on("disconnect", () => {
+    const docId = socket.data.docId;
+    if (!docId || !liveDocs.has(docId)) return;
+
+    const state = liveDocs.get(docId);
+    const participant = state.participants.get(socket.id);
+    state.participants.delete(socket.id);
+
+    const roomName = buildRoomName(docId);
+    if (participant) {
+      socket.to(roomName).emit("presence:left", participant);
+    }
+    io.to(roomName).emit("presence:list", Array.from(state.participants.values()));
+
+    if (state.participants.size === 0 && !state.saveTimer) {
+      liveDocs.delete(docId);
+    }
+  });
+});
 
 //------------------------------------------- connection -------------------------------------------//
 client
@@ -540,13 +727,18 @@ app.get("/how-to-use", (req, res) => {
 
 app.post("/Text/save", async (req, res) => {
   try {
+    const requestedTextId = req.body.textId || textId;
+    if (!requestedTextId) {
+      return res.status(400).send("Missing text ID");
+    }
+
     var encryptData = encrypt(req.body.content, encyptKey);
 
     await client
       .db("Share-Note")
       .collection("Data")
       .updateOne(
-        { _id: textId },
+        { _id: requestedTextId },
         { 
           $set: { 
             content: encryptData
@@ -558,7 +750,20 @@ app.post("/Text/save", async (req, res) => {
         { upsert: true }
       );
 
-    return res.redirect("/Text/" + textId);
+    const state = liveDocs.get(requestedTextId);
+    if (state) {
+      state.content = req.body.content || "";
+      io.to(buildRoomName(requestedTextId)).emit("text:remote", {
+        content: state.content,
+        participant: null,
+      });
+    }
+
+    if (req.get("x-requested-with") === "XMLHttpRequest") {
+      return res.status(204).send();
+    }
+
+    return res.redirect("/Text/" + requestedTextId);
   } catch (error) {
     console.error("Error saving text:", error);
     res.status(500).send("Internal Server Error");
@@ -567,13 +772,18 @@ app.post("/Text/save", async (req, res) => {
 
 app.post("/Text/lock", async (req, res) => {
   try {
+    const requestedTextId = req.body.textId || textId;
+    if (!requestedTextId) {
+      return res.status(400).send("Missing text ID");
+    }
+
     var encryptPaskey = encrypt(req.body.passkey, encyptKey);
 
     await client
       .db("Share-Note")
       .collection("Lock")
       .updateOne(
-        { _id: textId },
+        { _id: requestedTextId },
         { 
           $set: { 
             Pass: encryptPaskey
@@ -585,10 +795,10 @@ app.post("/Text/lock", async (req, res) => {
         { upsert: true }
       );
 
-    req.session.PageUnlocked = textId;
+    req.session.PageUnlocked = requestedTextId;
     req.session.cookie.maxAge = 2 * 60 * 1000; // 2 minutes
 
-    return res.redirect("/Text/" + textId);
+    return res.redirect("/Text/" + requestedTextId);
   } catch (error) {
     console.error("Error locking page:", error);
     res.status(500).send("Internal Server Error");
@@ -604,6 +814,7 @@ app.get("/Text/:textId?", async (req, res) => {
     showPopup: false,
     lockButton: true,
     error: "",
+    textId,
     File: false,
     fileName: "",
     Filekey: "",
@@ -645,12 +856,14 @@ app.get("/Text/:textId?", async (req, res) => {
 });
 
 app.post("/Text/unlock", async (req, res) => {
+  const requestedTextId = req.body.textId || textId;
   // Create fresh data object for each request
   const pageData = {
     content: "",
     showPopup: false,
     lockButton: false,
     error: "",
+    textId: requestedTextId,
     File: false,
     fileName: "",
     Filekey: "",
@@ -661,7 +874,7 @@ app.post("/Text/unlock", async (req, res) => {
     const DBdata = await client
       .db("Share-Note")
       .collection("Lock")
-      .findOne({ _id: textId });
+      .findOne({ _id: requestedTextId });
 
     // Check if page is actually locked
     if (!DBdata) {
@@ -671,9 +884,9 @@ app.post("/Text/unlock", async (req, res) => {
 
     // Verify password
     if (pass === decrypt(DBdata.Pass, encyptKey)) {
-      req.session.PageUnlocked = textId;
+      req.session.PageUnlocked = requestedTextId;
       req.session.cookie.maxAge = 2 * 60 * 1000; // 2 minutes (consistent with lock route)
-      return res.redirect("/Text/" + textId);
+      return res.redirect("/Text/" + requestedTextId);
     } else {
       pageData.error = "Incorrect password";
       return res.render("unLock", pageData);
@@ -843,4 +1056,4 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-app.listen(3000, () => console.log("Running on http://localhost:3000"));
+httpServer.listen(3000, () => console.log("Running on http://localhost:3000"));

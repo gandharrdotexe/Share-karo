@@ -9,7 +9,48 @@
       
         <div class="row">
           <form action="/Text/save" method="post" id="textForm">
-            <textarea style="font-size: large;" id="content" name="content" placeholder="Enter your text here..." class="notepad mt-2"><%=content%></textarea>
+            <input type="hidden" name="textId" value="<%= typeof textId !== 'undefined' ? textId : '' %>">
+            <div class="textarea-wrapper" style="position: relative;">
+              <!-- Copy to clipboard button (top-right of textarea) -->
+              <button
+                type="button"
+                id="copyBtn"
+                class="copy-btn"
+                title="Copy to clipboard"
+                style="position: absolute; top: 10px; right: 10px; padding: 6px 10px; font-size: 0.85rem; border-radius: 6px; border: none; background-color: #2d2d2d; color: #e5e5e5; cursor: pointer; z-index: 2;"
+              >
+                Copy
+              </button>
+
+              <div id="editorSurface" style="position: relative; border: 1px solid #323232; border-radius: 8px; background: #151515;">
+                <div
+                  id="contentEditor"
+                  contenteditable="true"
+                  spellcheck="false"
+                  style="font-size: large; width: 100%; min-height: 360px; max-height: 62vh; overflow: auto; padding: 14px; color: #ececec; outline: none; white-space: pre-wrap; word-break: break-word;"
+                ><%=content%></div>
+                <div id="remoteCursorLayer" style="position: absolute; inset: 0; pointer-events: none;"></div>
+              </div>
+              <textarea id="content" name="content" style="display: none;"><%=content%></textarea>
+
+              <!-- Live cursor position (line/column) -->
+              <div
+                id="cursorInfo"
+                style="position: absolute; bottom: 8px; right: 12px; font-size: 0.8rem; color: #a0a0a0; pointer-events: none;"
+              >
+                Line 1, Col 1
+              </div>
+            </div>
+
+            <!-- Autosave status -->
+            <div id="saveStatus" style="margin-top: 4px; font-size: 0.85rem; color: #a0a0a0;">
+              Autosave: idle
+            </div>
+            <div id="collabStatus" style="margin-top: 6px; font-size: 0.85rem; color: #a0a0a0;">
+              Live users: connecting...
+            </div>
+            <div id="liveUsers" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;"></div>
+            <div id="liveActivity" style="margin-top: 8px; font-size: 0.85rem; color: #b5b5b5;"></div>
             <!-- save button -->
 
             <div class="save-lock-btn">
@@ -42,6 +83,7 @@
               <h1 style="text-decoration: bold;">Do you want to Lock this page content ??</h1>
               <p>Locking this page disable other public users to see the content written</p>
               <input type="text" name="passkey" id="passkey" placeholder="Enter a passkey to Lock" style="margin-top: 10px; padding: 10px; width: 95%; background-color: #1E1E1E; border-radius: 12px; color: #709f44;" >
+              <input type="hidden" name="textId" value="<%= typeof textId !== 'undefined' ? textId : '' %>">
               
               <div class="lock-cancel-btn">
                 <!-- <button type="button" id="hidePopup">Cancel</button> -->
@@ -97,48 +139,386 @@
         </div>
     </div>
     
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-
-      
-      document.getElementById('showPopup').addEventListener("click", ()=>{
-        document.getElementById('popup').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-      });
-    
-
-      document.getElementById('hidePopup').addEventListener("click", ()=>{
-        document.getElementById('popup').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
-      });
-      
-      // Warning popup functionality
+      const renderedTextId = "<%= typeof textId !== 'undefined' ? textId : '' %>";
+      const textId = renderedTextId || window.location.pathname.split('/').filter(Boolean).pop() || "";
+      const showPopupBtn = document.getElementById('showPopup');
+      const hidePopupBtn = document.getElementById('hidePopup');
+      const popup = document.getElementById('popup');
+      const overlay = document.getElementById('overlay');
+      const warningPopup = document.getElementById('warningPopup');
+      const warningOverlay = document.getElementById('warningOverlay');
       const hideWarningPopup = document.getElementById('hideWarningPopup');
-      if (hideWarningPopup) {
-          hideWarningPopup.addEventListener("click", ()=>{
-              document.getElementById('warningPopup').style.display = 'none';
-              document.getElementById('warningOverlay').style.display = 'none';
-          });
+
+      if (showPopupBtn && popup && overlay) {
+        showPopupBtn.addEventListener("click", () => {
+          popup.style.display = 'block';
+          overlay.style.display = 'block';
+        });
       }
 
-      // Show warning popup on page load every time
+      if (hidePopupBtn && popup && overlay) {
+        hidePopupBtn.addEventListener("click", () => {
+          popup.style.display = 'none';
+          overlay.style.display = 'none';
+        });
+      }
+
+      if (hideWarningPopup && warningPopup && warningOverlay) {
+        hideWarningPopup.addEventListener("click", () => {
+          warningPopup.style.display = 'none';
+          warningOverlay.style.display = 'none';
+        });
+      }
+
       window.addEventListener('DOMContentLoaded', function() {
-          document.getElementById('warningPopup').style.display = 'block';
-          document.getElementById('warningOverlay').style.display = 'block';
-      });
-      
-      document.addEventListener('keydown', function(event) {
-    if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-        event.preventDefault();
+        if (warningPopup && warningOverlay) {
+          warningPopup.style.display = 'block';
+          warningOverlay.style.display = 'block';
+        }
+
+        const hiddenTextarea = document.getElementById('content');
+        const editor = document.getElementById('contentEditor');
+        const editorSurface = document.getElementById('editorSurface');
+        const remoteCursorLayer = document.getElementById('remoteCursorLayer');
+        const cursorInfo = document.getElementById('cursorInfo');
+        const saveStatus = document.getElementById('saveStatus');
+        const collabStatus = document.getElementById('collabStatus');
+        const liveUsers = document.getElementById('liveUsers');
+        const liveActivity = document.getElementById('liveActivity');
+        const copyBtn = document.getElementById('copyBtn');
+        let autoSaveTimeout = null;
+        let emitChangeTimeout = null;
+        let isApplyingRemote = false;
+        let lastSavedContent = hiddenTextarea ? hiddenTextarea.value : '';
+        let selfUserId = null;
+        let collaborators = [];
+        const socket = io();
+
+        function getEditorText() {
+          if (!editor) return "";
+          return editor.innerText.replace(/\r\n/g, '\n');
+        }
+
+        function syncHiddenTextarea() {
+          if (hiddenTextarea) hiddenTextarea.value = getEditorText();
+        }
+
+        function createRangeAtOffset(offset) {
+          if (!editor) return null;
+          const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+          let node = walker.nextNode();
+          let remaining = Math.max(0, offset);
+
+          while (node) {
+            const len = node.textContent.length;
+            if (remaining <= len) {
+              const range = document.createRange();
+              range.setStart(node, remaining);
+              range.collapse(true);
+              return range;
+            }
+            remaining -= len;
+            node = walker.nextNode();
+          }
+
+          const fallback = document.createRange();
+          fallback.selectNodeContents(editor);
+          fallback.collapse(false);
+          return fallback;
+        }
+
+        function getCursorPosition() {
+          if (!editor) return 0;
+          const selection = window.getSelection();
+          if (!selection || selection.rangeCount === 0) return 0;
+          const range = selection.getRangeAt(0);
+          if (!editor.contains(range.endContainer)) return 0;
+          const pre = range.cloneRange();
+          pre.selectNodeContents(editor);
+          pre.setEnd(range.endContainer, range.endOffset);
+          return pre.toString().length;
+        }
+
+        function setCursorPosition(offset) {
+          if (!editor) return;
+          const range = createRangeAtOffset(offset);
+          if (!range) return;
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+
+        function lineAndColFromPos(value, pos) {
+          const textUptoCursor = value.substring(0, pos);
+          const lines = textUptoCursor.split('\n');
+          return { line: lines.length, col: lines[lines.length - 1].length + 1 };
+        }
+
+        function updateCursorInfo() {
+          if (!editor || !cursorInfo) return;
+          const info = lineAndColFromPos(getEditorText(), getCursorPosition());
+          cursorInfo.textContent = `Line ${info.line}, Col ${info.col}`;
+        }
+
+        function setSaveStatus(message) {
+          if (saveStatus) saveStatus.textContent = message;
+        }
+
+        function setActivity(message) {
+          if (liveActivity) liveActivity.textContent = message;
+        }
+
+        function getCaretRectAtOffset(offset) {
+          const range = createRangeAtOffset(offset);
+          if (!range) return null;
+          const directRect = range.getClientRects()[0];
+          if (directRect) return directRect;
+
+          const marker = document.createElement('span');
+          marker.textContent = '\u200b';
+          range.insertNode(marker);
+          const markerRect = marker.getBoundingClientRect();
+          marker.remove();
+          return markerRect;
+        }
+
+        function renderRemoteCursors() {
+          if (!remoteCursorLayer || !editorSurface || !editor) return;
+          remoteCursorLayer.innerHTML = '';
+          const surfaceRect = editorSurface.getBoundingClientRect();
+          const textValue = getEditorText();
+
+          collaborators.forEach((user) => {
+            if (!user || user.id === selfUserId) return;
+            const offset = Math.max(0, Math.min(user.cursor || 0, textValue.length));
+            const caretRect = getCaretRectAtOffset(offset);
+            if (!caretRect) return;
+
+            const x = Math.max(0, caretRect.left - surfaceRect.left);
+            const y = Math.max(0, caretRect.top - surfaceRect.top);
+            const h = Math.max(16, caretRect.height || 18);
+
+            const cursorEl = document.createElement('div');
+            cursorEl.style.position = 'absolute';
+            cursorEl.style.left = `${x}px`;
+            cursorEl.style.top = `${y}px`;
+            cursorEl.style.width = '2px';
+            cursorEl.style.height = `${h}px`;
+            cursorEl.style.background = user.color || '#22c55e';
+            cursorEl.style.borderRadius = '2px';
+
+            const labelEl = document.createElement('div');
+            labelEl.textContent = user.name || 'Anonymous';
+            labelEl.style.position = 'absolute';
+            labelEl.style.left = `${x + 4}px`;
+            labelEl.style.top = `${Math.max(0, y - 20)}px`;
+            labelEl.style.fontSize = '0.68rem';
+            labelEl.style.padding = '1px 6px';
+            labelEl.style.borderRadius = '8px';
+            labelEl.style.color = '#fff';
+            labelEl.style.background = user.color || '#22c55e';
+            labelEl.style.whiteSpace = 'nowrap';
+
+            remoteCursorLayer.appendChild(cursorEl);
+            remoteCursorLayer.appendChild(labelEl);
+          });
+        }
+
+        function renderCollaborators() {
+          if (!liveUsers || !collabStatus || !editor) return;
+          const textValue = getEditorText();
+          collabStatus.textContent = `Live users: ${collaborators.length}`;
+          liveUsers.innerHTML = collaborators.map((user) => {
+            const cursor = lineAndColFromPos(textValue, user.cursor || 0);
+            const you = user.id === selfUserId ? ' (You)' : '';
+            return `<span style="padding: 4px 8px; border-radius: 999px; background: ${user.color}22; border: 1px solid ${user.color}; color: #f5f5f5; font-size: 0.8rem;">${user.name}${you} - L${cursor.line}:C${cursor.col}</span>`;
+          }).join('');
+          renderRemoteCursors();
+        }
+
+        function emitCursorMove() {
+          socket.emit("cursor:move", { textId, cursor: getCursorPosition() });
+        }
+
+        function emitTextChange() {
+          socket.emit("text:change", {
+            textId,
+            content: getEditorText(),
+            cursor: getCursorPosition(),
+          });
+        }
+
+        async function autoSave() {
+          if (!editor) return;
+          const currentContent = getEditorText();
+          if (currentContent === lastSavedContent) return;
+
+          setSaveStatus('Autosave: saving...');
+          try {
+            const body = new URLSearchParams();
+            body.append('content', currentContent);
+            body.append('textId', textId);
+
+            const response = await fetch('/Text/save', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+              },
+              body: body.toString(),
+            });
+
+            if (!response.ok) {
+              setSaveStatus(`Autosave: error (${response.status})`);
+              return;
+            }
+
+            lastSavedContent = currentContent;
+            setSaveStatus('Autosave: saved');
+          } catch (e) {
+            setSaveStatus('Autosave: error (connection)');
+          }
+        }
+
+        function scheduleAutoSave() {
+          setSaveStatus('Autosave: pending...');
+          if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+          autoSaveTimeout = setTimeout(autoSave, 1600);
+        }
+
+        if (editor) {
+          const initialText = hiddenTextarea ? hiddenTextarea.value : getEditorText();
+          editor.textContent = initialText || '';
+          syncHiddenTextarea();
+
+          editor.addEventListener('paste', (event) => {
+            event.preventDefault();
+            const text = (event.clipboardData || window.clipboardData).getData('text');
+            document.execCommand('insertText', false, text);
+          });
+
+          editor.addEventListener('input', () => {
+            if (isApplyingRemote) return;
+            const cursor = getCursorPosition();
+            const normalized = getEditorText();
+            editor.textContent = normalized;
+            setCursorPosition(Math.min(cursor, normalized.length));
+            syncHiddenTextarea();
+            updateCursorInfo();
+            scheduleAutoSave();
+            emitCursorMove();
+            if (emitChangeTimeout) clearTimeout(emitChangeTimeout);
+            emitChangeTimeout = setTimeout(emitTextChange, 80);
+          });
+
+          ['click', 'keyup', 'mouseup'].forEach((evt) => {
+            editor.addEventListener(evt, () => {
+              updateCursorInfo();
+              emitCursorMove();
+              renderCollaborators();
+            });
+          });
+
+          editor.addEventListener('scroll', renderRemoteCursors);
+          document.addEventListener('selectionchange', () => {
+            if (document.activeElement !== editor) return;
+            updateCursorInfo();
+            emitCursorMove();
+          });
+
+          updateCursorInfo();
+          setSaveStatus('Autosave: idle');
+        }
+
+        if (copyBtn && editor) {
+          copyBtn.addEventListener('click', async () => {
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(getEditorText());
+              } else if (hiddenTextarea) {
+                hiddenTextarea.style.display = 'block';
+                hiddenTextarea.select();
+                document.execCommand('copy');
+                hiddenTextarea.style.display = 'none';
+                editor.focus();
+              }
+              copyBtn.textContent = 'Copied!';
+              setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
+            } catch (_) {}
+          });
+        }
+
+        socket.on("connect", () => {
+          socket.emit("text:join", { textId });
+        });
+
+        socket.on("text:init", (payload) => {
+          if (!editor) return;
+          selfUserId = payload.self ? payload.self.id : null;
+          collaborators = payload.participants || [];
+          if (typeof payload.content === 'string') {
+            editor.textContent = payload.content;
+            syncHiddenTextarea();
+            lastSavedContent = payload.content;
+            updateCursorInfo();
+          }
+          renderCollaborators();
+          setActivity('Connected to live collaboration');
+        });
+
+        socket.on("text:remote", ({ content, participant }) => {
+          if (!editor || typeof content !== 'string') return;
+          const currentOffset = getCursorPosition();
+          isApplyingRemote = true;
+          editor.textContent = content;
+          syncHiddenTextarea();
+          setCursorPosition(Math.min(currentOffset, content.length));
+          isApplyingRemote = false;
+          lastSavedContent = content;
+          updateCursorInfo();
+          renderRemoteCursors();
+          if (participant && participant.name) {
+            setActivity(`${participant.name} edited the document`);
+          }
+        });
+
+        socket.on("cursor:remote", (participant) => {
+          collaborators = collaborators.map((user) =>
+            user.id === participant.id ? participant : user
+          );
+          renderCollaborators();
+        });
+
+        socket.on("presence:joined", (participant) => {
+          setActivity(`${participant.name} joined`);
+        });
+
+        socket.on("presence:left", (participant) => {
+          setActivity(`${participant.name} left`);
+        });
+
+        socket.on("presence:list", (participants) => {
+          collaborators = participants || [];
+          renderCollaborators();
+        });
+
         const form = document.getElementById('textForm');
         if (form) {
-            form.submit();
-        } else {
-            console.error('Form not found.');
+          form.addEventListener('submit', () => {
+            syncHiddenTextarea();
+          });
         }
-    }
-});
+      });
 
-   
+      document.addEventListener('keydown', function(event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+          event.preventDefault();
+          const form = document.getElementById('textForm');
+          if (form) form.submit();
+        }
+      });
     </script>
     <%- include('./partials/footer.ejs') %>
 </body>
